@@ -1,28 +1,50 @@
-"""
-Grid CLI - Main Entry Point
-"""
+import click
+from rich.console import Console
+from rich.panel import Panel
+from grid.commands import roast as cmd_roast
+from grid.commands import submit as cmd_submit
+from grid.commands import push as cmd_push
+from grid.commands import status as cmd_status
+from grid.core import utils
 
-import sys
-from grid.shell.loop import start_repl
-from grid.shell.handlers import get_handler
+console = Console()
 
+# --- THE FIX: We name this function 'main' to match the error's expectation ---
+@click.group()
 def main():
-    # If no args, start the interactive shell
-    if len(sys.argv) == 1:
-        start_repl()
-        return
+    """
+    GRID CLI v1.0 | The Sentient Developer Companion.
+    """
+    pass
 
-    # Handle one-off commands
-    cmd = sys.argv[1]
-    args = sys.argv[2:]
-    
-    handler = get_handler(cmd)
-    if handler:
-        handler(args)
+@main.command()
+@click.argument('target', required=False)
+@click.option('-dev', '--developer', help='Target a specific colleague (PvP Mode)')
+@click.option('--recent', is_flag=True, help='Roast their most recent commit')
+def roast(target, developer, recent):
+    if developer:
+        cmd_roast.roast_developer(developer, recent)
+    elif target:
+        cmd_roast.roast_file(target)
     else:
-        # Fallback to system help if unknown command
-        print(f"Unknown Grid command: {cmd}")
-        print("Type 'grid' for the interactive shell or 'grid help' for a list of commands.")
+        cmd_roast.roast_project()
 
-if __name__ == "__main__":
+@main.command()
+@click.argument('message')
+def submit(message):
+    cmd_submit.run(message)
+
+@main.command()
+def push():
+    cmd_push.run()
+
+@main.command()
+def status():
+    cmd_status.run()
+
+@main.command()
+def init():
+    console.print(Panel.fit("[bold green]Assimilation Complete.[/]\nGrid is now watching this repository.", title="GRID v1.0"))
+
+if __name__ == '__main__':
     main()

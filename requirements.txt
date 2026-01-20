@@ -1,8 +1,6 @@
 click
 rich
-prompt_toolkit
 requests
-pyyaml
-loguru
-psutil
-huggingface_hub
+praw
+tree-sitter
+tree-sitter-languages
