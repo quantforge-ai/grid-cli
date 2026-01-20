@@ -48,6 +48,7 @@ class GridREPL:
                 # 2. Shell Built-ins (No prefix needed)
                 if cmd_str.lower() in ["exit", "quit", "disconnect", "eject"]:
                     console.print(f"\n[bold red]💔 {persona.generate('eject')}[/bold red]")
+                    time.sleep(5.0)  # Dramatic farewell pause
                     break
                 
                 if cmd_str.lower() in ["clear", "cls"]:
