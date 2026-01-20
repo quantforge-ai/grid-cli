@@ -221,9 +221,15 @@ def handle_roast(args):
     if not args:
         console.print("[yellow]💨 Roast what? I need a file to incinerate.[/yellow]")
         return
-    file_path = args[0]
-    if not os.path.exists(file_path):
-        console.print(f"[red]❌ Error: {file_path} is already non-existent (or just hidden).[/red]")
+    
+    filename = args[0]
+    
+    # Smart Target Acquisition
+    file_path = scan_for_file(filename)
+    
+    if not file_path:
+        console.print(f"[bold red]❌ ERROR: Target '{filename}' not found in this sector.[/bold red]")
+        speak("error")
         return
     
     # Special handling for non-code files
