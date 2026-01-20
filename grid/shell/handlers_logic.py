@@ -6,6 +6,7 @@ import os
 import sys
 import subprocess
 import time
+import random
 from pathlib import Path
 from rich.console import Console
 from rich.prompt import Confirm

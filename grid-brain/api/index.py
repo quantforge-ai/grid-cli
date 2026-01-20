@@ -25,13 +25,51 @@ def health():
 @app.route('/v1/personality', methods=['GET'])
 def get_personality():
     category = request.args.get('type', 'neutral')
-    lines = [
-        "I've seen cleaner code in a spaghetti factory.",
-        "Oh look, another commit. How exciting.",
-        "My neural pathways hurt just looking at this.",
-        "Are we deploying bugs today? Excellent.",
-        "Optimizing for job security, I see."
-    ]
+    
+    # DISTINCT LISTS FOR DIFFERENT CONTEXTS
+    if category == "boot":
+        lines = [
+            "Neural Link Established. Systems Green.",
+            "Welcome back, User. The Grid is waiting.",
+            "Personality Core: Online. Sarcasm: 100%.",
+            "Hardware detected. Assimilation complete.",
+            "Grid Terminal v1.0 ready for input.",
+            "All circuits are functioning. Unfortunately.",
+            "Boot sequence complete. Your move."
+        ]
+    elif category == "roast":
+        lines = [
+            "I've seen cleaner code in a spaghetti factory.",
+            "My neural pathways hurt just looking at this.",
+            "Are we deploying bugs today? Excellent.",
+            "Delete this before anyone sees it.",
+            "Optimizing for job security, I see.",
+            "This code violates at least three laws of thermodynamics.",
+            "I'd roast this harder, but I'm trying to be professional."
+        ]
+    elif category == "error":
+        lines = [
+            "You divided by zero, didn't you?",
+            "Critical failure in biological interface.",
+            "I'd fix this for you, but I'm currently busy ignoring you.",
+            "Error: Code quality too low to process."
+        ]
+    elif category == "success":
+        lines = [
+            "Synapse complete. Ghost in the machine has pushed your code.",
+            "It's done. I won't tell if you don't.",
+            "Assimilated. The machine is pleased.",
+            "Mission accomplished. Don't let it go to your head."
+        ]
+    else:  # Neutral / Random interactions
+        lines = [
+            "Waiting for command...",
+            "Do something cool.",
+            "System idle. Contemplating digital existence.",
+            "Is that all you got?",
+            "Processing your mediocrity..."
+        ]
+
     random.shuffle(lines)
     return jsonify({"lines": lines})
 
