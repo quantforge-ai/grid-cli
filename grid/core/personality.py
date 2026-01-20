@@ -87,7 +87,11 @@ class SassyEngine:
                         self.cache[context] = []
                     self.cache[context].extend(new_lines)
                     self._save_cache()
-        except Exception:
-            pass
+            else:
+                from rich.console import Console
+                Console().print(f"[bold red]⚠️ NEURAL LINK ERROR: Server returned {resp.status_code}[/bold red]")
+        except Exception as e:
+            from rich.console import Console
+            Console().print(f"[bold red]⚠️ NEURAL LINK DISCONNECTED: {e}[/bold red]")
 
 engine = SassyEngine()

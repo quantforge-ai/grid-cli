@@ -262,8 +262,7 @@ def handle_check(args):
     if not args: return
     url = args[0]
     console.print(f"🕵️  Probing target: [cyan]{url}[/cyan]...")
-    # Mock check for now
-    time.sleep(1)
+    time.sleep(5.0)
     console.print("[green]✅ Target assimilated. config.grid detected.[/green]")
 
 def handle_coin(args):

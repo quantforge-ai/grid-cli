@@ -38,21 +38,21 @@ def boot_sequence():
     )
     console.print("\n")
 
+    # Technical loading sequence
     steps = [
         "Mounting File System...",
         "Verifying CUDA Cores...",
-        get_random_flavor_text(),
+        "Synchronizing Synapses...",
         "Handshaking with Grid Node...",
         "Allocating Memory Buffers...",
-        "ACCESS GRANTED"
+        "Decrypting Personality Core..."
     ]
     
-    for step in track(
-        steps,
-        description="[cyan]Synchronizing Synapses...[/cyan]",
-        transient=True
-    ):
-        time.sleep(random.uniform(0.1, 0.4))
-
+    for step in steps:
+        console.print(f"[dim green]/// {step}[/dim green]")
+        time.sleep(random.uniform(0.2, 0.4))
+    
+    time.sleep(2.0)
+    console.print("[bold green]/// ACCESS GRANTED[/bold green]\n")
     console.clear()
     console.print("[dim]Grid CLI v1.0 | Universal Interface[/dim]\n")
