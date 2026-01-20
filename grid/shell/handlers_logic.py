@@ -226,24 +226,36 @@ def handle_roast(args):
         console.print(f"[red]❌ Error: {file_path} is already non-existent (or just hidden).[/red]")
         return
     
+    # Special handling for non-code files
+    if file_path.upper().endswith(('.MD', '.TXT', '.JSON', '.YAML', '.YML', '.TOML')):
+        console.print(f"📄 [yellow]This is documentation, not code. I'll comment instead of roast.[/yellow]")
+        speak("boot")
+        console.print(f"\n[italic cyan]\"Documentation detected. Proceeding with constructive analysis.\"[/italic cyan]\n")
+        return
+    
     speak("roast", file_path)
     console.print(f"🔥 [bold red]INCINERATING {file_path}...[/bold red]")
     
-    # Try to get AI roast from the Brain
+    # Try to get AI roast from the Brain (DEBUG MODE)
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             code = f.read()
         
         url = "https://grid-cli.vercel.app/v1/roast"
+        console.print(f"[dim]>> Contacting Neural Hub: {url}[/dim]")
+        
         import requests
-        resp = requests.post(url, json={"code": code}, timeout=5)
+        resp = requests.post(url, json={"code": code}, timeout=20)
         
         if resp.status_code == 200:
             roast_text = resp.json()[0]['generated_text']
             console.print(f"\n[italic cyan]\"{roast_text}\"[/italic cyan]\n")
             return
-    except Exception:
-        pass
+        else:
+            console.print(f"[bold red]>> SERVER ERROR {resp.status_code}: {resp.text}[/bold red]")
+            
+    except Exception as e:
+        console.print(f"[bold red]>> CONNECTION FAILED: {e}[/bold red]")
     
     # Offline fallback
     backups = [
