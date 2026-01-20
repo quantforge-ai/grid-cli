@@ -19,7 +19,7 @@ Be short, witty, and brutal.
 
 @app.route('/v1/health', methods=['GET'])
 def health():
-    return jsonify({"status": "neural_link_active", "version": "1.1.0"})
+    return jsonify({"status": "neural_link_active", "version": "1.0.0"})
 
 @app.route('/v1/personality', methods=['GET'])
 def get_personality():
