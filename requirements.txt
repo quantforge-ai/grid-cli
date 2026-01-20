@@ -1,0 +1,8 @@
+click
+rich
+prompt_toolkit
+requests
+pyyaml
+loguru
+psutil
+huggingface_hub

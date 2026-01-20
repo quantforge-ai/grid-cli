@@ -1,0 +1,22 @@
+[project]
+name = "grid-cli"
+version = "1.0.0"
+description = "Universal Sentient Developer Toolkit & Project Orchestrator"
+readme = "README.md"
+authors = [{name = "Tanishq", email = "tanishq@example.com"}]
+dependencies = [
+    "rich",
+    "prompt_toolkit",
+    "requests",
+    "pyyaml",
+    "huggingface_hub",
+    "psutil",
+    "loguru"
+]
+
+[project.scripts]
+grid = "grid.main:main"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
