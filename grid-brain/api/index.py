@@ -35,6 +35,26 @@ def get_personality():
     random.shuffle(lines)
     return jsonify({"lines": lines})
 
+@app.route('/v1/auth/login', methods=['POST'])
+def login():
+    """
+    Community Authentication Logic.
+    In v1.0, we use a 'Community Link' token.
+    """
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
+
+    # Mock Cross-Check (Future: Connect to DB)
+    if username == "admin" and password == "grid":
+        return jsonify({
+            "status": "authenticated",
+            "token": "GRID_NEURAL_LINK_777",
+            "user": username
+        })
+    
+    return jsonify({"status": "denied", "message": "Neural signatures do not match the Community Hub."}), 401
+
 @app.route('/v1/roast', methods=['POST'])
 def roast():
     data = request.json

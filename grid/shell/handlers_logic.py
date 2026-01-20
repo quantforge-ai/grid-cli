@@ -16,6 +16,42 @@ from grid.core.executor import run_routine
 
 console = Console()
 
+TOKEN_FILE = Path.home() / ".quantgrid" / "token"
+
+def check_auth():
+    """Check if the user has a valid neural link token."""
+    if TOKEN_FILE.exists():
+        try:
+            with open(TOKEN_FILE, "r") as f:
+                return f.read().strip()
+        except Exception:
+            return None
+    return None
+
+def handle_login(args):
+    """Authenticate with the QuantForge Community Hub."""
+    from rich.prompt import Prompt
+    username = Prompt.ask("Community Username")
+    password = Prompt.ask("Community Password", password=True)
+    
+    console.print(f"📡 [bold cyan]Connecting to Community Hub as {username}...[/bold cyan]")
+    try:
+        url = "https://grid-cli.vercel.app/v1/auth/login"
+        import requests
+        resp = requests.post(url, json={"username": username, "password": password}, timeout=5)
+        
+        if resp.status_code == 200:
+            data = resp.json()
+            token = data.get("token")
+            TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
+            with open(TOKEN_FILE, "w") as f:
+                f.write(token)
+            console.print(f"[bold green]✅ Neural Identity Verified. Welcome back, {username}.[/bold green]")
+        else:
+            console.print(f"[bold red]❌ Authentication Failed: {resp.json().get('message')}[/bold red]")
+    except Exception as e:
+        console.print(f"[bold red]❌ Fatal Error: Could not reach the Hive Mind. {e}[/bold red]")
+
 def speak(category="neutral", hint=None):
     """
     Prints a sassy message and waits for the user to read it.
@@ -27,6 +63,14 @@ def speak(category="neutral", hint=None):
 
 def handle_delegated(cmd, args):
     """Delegate command to the project's core logic via executor"""
+    # Gating high-privilege intelligence commands
+    if cmd in ["train", "push", "pull"]:
+        if not check_auth():
+            console.print(f"[bold red]🚫 ACCESS DENIED.[/bold red]")
+            console.print(f"[yellow]The '{cmd}' protocol requires a Community Neural Link.[/yellow]")
+            console.print(f"[dim]Run 'grid login' to authenticate.[/dim]")
+            return
+
     speak(cmd)
     console.print(f"   Consulting the Core for '[cyan]{cmd}[/cyan]'...")
     success, msg = run_routine(cmd)
