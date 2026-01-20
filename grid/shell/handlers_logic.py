@@ -264,7 +264,7 @@ def handle_roast(args):
     speak("roast", file_path)
     console.print(f"🔥 [bold red]INCINERATING {file_path}...[/bold red]")
     
-    # Try to get AI roast from the Brain (DEBUG MODE)
+    # Try to get AI roast from the Brain (DIAGNOSTIC MODE)
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             code = f.read()
@@ -273,14 +273,27 @@ def handle_roast(args):
         console.print(f"[dim]>> Contacting Neural Hub: {url}[/dim]")
         
         import requests
-        resp = requests.post(url, json={"code": code}, timeout=20)
+        resp = requests.post(url, json={"code": code}, timeout=30)
         
         if resp.status_code == 200:
-            roast_text = resp.json()[0]['generated_text']
-            console.print(f"\n[italic cyan]\"{roast_text}\"[/italic cyan]\n")
+            data = resp.json()
+            
+            # CHECK 1: Did we get a list (Success)?
+            if isinstance(data, list) and len(data) > 0:
+                roast_text = data[0].get('generated_text', 'Error: No text generated.')
+                console.print(f"\n[italic cyan]\"{roast_text}\"[/italic cyan]\n")
+                return
+            
+            # CHECK 2: Did we get an error dict (Failure)?
+            if isinstance(data, dict) and 'error' in data:
+                console.print(f"[bold red]>> BRAIN ERROR: {data['error']}[/bold red]")
+                console.print(f"[yellow]The AI is refusing to cooperate.[/yellow]\n")
+                return
+                
+            # CHECK 3: Something weird?
+            console.print(f"[bold red]>> UNKNOWN RESPONSE: {data}[/bold red]")
+            console.print(f"[yellow]The Brain sent gibberish.[/yellow]\n")
             return
-        else:
-            console.print(f"[bold red]>> SERVER ERROR {resp.status_code}: {resp.text}[/bold red]")
             
     except Exception as e:
         console.print(f"[bold red]>> CONNECTION FAILED: {e}[/bold red]")
