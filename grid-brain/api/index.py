@@ -1,31 +1,30 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-import requests
 import random
+from huggingface_hub import InferenceClient
 
 app = Flask(__name__)
 CORS(app)
 
+# 1. Setup the Official Client
+# It automatically handles the URL routing and authentication headers.
 HF_TOKEN = os.environ.get("HF_TOKEN")
-HF_API_URL = os.environ.get("HF_API_URL", "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2")
-
-ROAST_PROMPT = """
-You are a cynical senior software engineer. 
-Analyze the user's code. Find one specific flaw. 
-Insult the user's intelligence based on that flaw. 
-Be short, witty, and brutal.
-"""
+client = InferenceClient(token=HF_TOKEN)
 
 @app.route('/v1/health', methods=['GET'])
 def health():
-    return jsonify({"status": "neural_link_active", "version": "1.0.0"})
+    return jsonify({
+        "status": "neural_link_active", 
+        "version": "1.0.0",
+        "engine": "huggingface_hub.InferenceClient"
+    })
 
 @app.route('/v1/personality', methods=['GET'])
 def get_personality():
     category = request.args.get('type', 'neutral')
     
-    # 1. NICE GREETINGS (For Boot)
+    # NICE GREETINGS (For Boot)
     if category == "boot":
         lines = [
             "Neural Link Established. Systems Green.",
@@ -34,7 +33,7 @@ def get_personality():
             "Hardware detected. Assimilation complete.",
             "Grid Terminal v1.0 ready for input."
         ]
-    # 2. MEAN INSULTS (For Roast)
+    # MEAN INSULTS (For Roast)
     elif category == "roast":
         lines = [
             "I've seen cleaner code in a spaghetti factory.",
@@ -43,7 +42,7 @@ def get_personality():
             "Delete this before anyone sees it.",
             "Optimizing for job security, I see."
         ]
-    # 3. NEUTRAL (For idle)
+    # NEUTRAL (For idle)
     else: 
         lines = ["Waiting for command...", "Processing...", "I'm bored.", "System stable."]
 
@@ -58,17 +57,36 @@ def roast():
     if not HF_TOKEN:
         return jsonify({"error": "Brain Lobotomized (Missing HF_TOKEN)"}), 500
 
-    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-    payload = {
-        "inputs": f"<s>[INST] {ROAST_PROMPT} \n\n Code: {code_snippet} [/INST]",
-        "parameters": {"max_new_tokens": 60, "temperature": 0.8, "return_full_text": False}
-    }
-
     try:
-        response = requests.post(HF_API_URL, headers=headers, json=payload, timeout=10)
-        return jsonify(response.json())
+        # The PROMPT optimized for the official client
+        prompt = f"""<|system|>
+You are a cynical senior software engineer. 
+Analyze the user's code. Find one specific flaw. 
+Insult the user's intelligence based on that flaw. 
+Be short, witty, and brutal.</s>
+<|user|>
+Code:
+{code_snippet}</s>
+<|assistant|>"""
+
+        # The Official Call (No manual URLs or headers needed)
+        response = client.text_generation(
+            prompt,
+            model="mistralai/Mistral-7B-Instruct-v0.2",
+            max_new_tokens=100,
+            temperature=0.8,
+            stop_sequences=["</s>"]
+        )
+        
+        # Clean up the response (remove the prompt if it leaks, though client usually doesn't)
+        roast_text = response.strip()
+        
+        # Return in the format the CLI expects (List of dicts)
+        return jsonify([{"generated_text": roast_text}])
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # Error diagnostics are automatically better with the library
+        return jsonify({"error": f"HF Client Error: {str(e)}"}), 500
 
 # Required for Vercel
 app = app
