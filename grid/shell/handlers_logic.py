@@ -150,7 +150,7 @@ def handle_status(args):
         token = os.environ.get("GRID_AI_KEY") or os.environ.get("HUGGINGFACE_TOKEN")
         headers = {"Authorization": f"Bearer {token}"} if token else {}
         # Assuming the server side has the token, we just check health.
-        response = requests.get("https://api.quantgrid.dev/v1/health", headers=headers, timeout=2)
+        response = requests.get("https://grid-cli.vercel.app/v1/health", headers=headers, timeout=5)
         link_status = "[bold green]ONLINE[/bold green]" if response.status_code == 200 else "[bold yellow]DEGRADED[/bold yellow]"
     except Exception:
         link_status = "[bold red]SEVERED[/bold red] [dim](Offline Seed Active)[/dim]"
