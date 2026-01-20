@@ -23,7 +23,7 @@ def speak(category="neutral", hint=None):
     """
     msg = persona.generate(category, hint)
     console.print(f"[bold green]>[/bold green] [italic cyan]{msg}[/italic cyan]")
-    time.sleep(2.0)
+    time.sleep(5.0)
 
 def handle_delegated(cmd, args):
     """Delegate command to the project's core logic via executor"""

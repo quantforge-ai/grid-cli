@@ -112,8 +112,8 @@ class SassyEngine:
                         self.cache[context] = []
                     self.cache[context].extend(new_lines)
                     self._save_cache()
-        except Exception as e:
-            logger.debug(f"Background refill failed: {e}")
+        except Exception:
+            pass
 
     def _llm_generate(self, context: str, hint: Optional[str]) -> str:
         """Direct LLM generation for users with personal keys."""

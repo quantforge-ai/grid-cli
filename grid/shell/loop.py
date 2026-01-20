@@ -30,8 +30,10 @@ class GridREPL:
 
     def start(self):
         from grid.shell.prompt import set_terminal_title
+        from grid.shell.handlers_logic import speak
         set_terminal_title()
         boot_sequence()
+        speak("boot")
         
         while True:
             try:
