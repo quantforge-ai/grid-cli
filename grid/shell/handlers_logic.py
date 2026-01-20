@@ -217,6 +217,28 @@ def handle_purge(args):
 def handle_upgrade(args):
     console.print("[green]✅ You are at the peak of evolution (v1.0).[/green]")
 
+def scan_for_file(filename):
+    """
+    Target Acquisition Scanner.
+    Recursively searches for a file in the current directory and subdirectories.
+    Returns the full relative path if found.
+    """
+    # 1. Check if it's right here (or user gave a full path)
+    if os.path.exists(filename):
+        return filename
+    
+    # 2. Scanning subfolders...
+    console.print(f"[dim]>> Scanning sector for '{filename}'...[/dim]")
+    for root, dirs, files in os.walk("."):
+        if filename in files:
+            # Target found! Construct the path.
+            found_path = os.path.join(root, filename)
+            console.print(f"[dim green]>> Target acquired: {found_path}[/dim green]")
+            return found_path
+            
+    # 3. Lost
+    return None
+
 def handle_roast(args):
     if not args:
         console.print("[yellow]💨 Roast what? I need a file to incinerate.[/yellow]")
