@@ -18,6 +18,10 @@ def get_handler(cmd):
         "purge": handlers_logic.handle_purge,
         "status": handlers_logic.handle_status,
         "login": handlers_logic.handle_login,
+        # Developer Utilities
+        "coin": handlers_logic.handle_coin,
+        "zen": handlers_logic.handle_zen,
+        "blame": handlers_logic.handle_blame,
         # Delegated Intelligence
         "train": lambda args: handlers_logic.handle_delegated("train", args),
         "push": lambda args: handlers_logic.handle_delegated("push", args),

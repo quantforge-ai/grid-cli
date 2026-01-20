@@ -28,8 +28,13 @@ def show_help():
     table.add_row("push", "Collate: Upload intelligence packet to the Hub")
     table.add_row("pull <id>", "Ingest: Download model artifacts from Collective")
     
+    # Developer Utilities
+    table.add_row("coin", "Binary Decision Protocol: Flip for PROCEED or ABORT")
+    table.add_row("zen", "Void State: Clear terminal and enter focus mode")
+    table.add_row("blame <file>", "Identify: Execute git blame with cyberpunk flair")
+    
     # System Commands
-    table.add_row("login", "Authenticate: Verify identity on the QuantGrid Hub")
+    table.add_row("login", "Authenticate: Verify identity on the Community Hub")
     table.add_row("status", "Vital Signs: Show system diagnostics and memory usage")
     table.add_row("purge", "Sanitize: Incinerate cache, temp files, and dead data")
     table.add_row("exit", "Disconnect: Power down the interface")

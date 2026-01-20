@@ -227,7 +227,32 @@ def handle_roast(args):
     
     speak("roast", file_path)
     console.print(f"🔥 [bold red]INCINERATING {file_path}...[/bold red]")
-    time.sleep(1)
+    
+    # Try to get AI roast from the Brain
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            code = f.read()
+        
+        url = "https://grid-cli.vercel.app/v1/roast"
+        import requests
+        resp = requests.post(url, json={"code": code}, timeout=5)
+        
+        if resp.status_code == 200:
+            roast_text = resp.json()[0]['generated_text']
+            console.print(f"\n[italic cyan]\"{roast_text}\"[/italic cyan]\n")
+            return
+    except Exception:
+        pass
+    
+    # Offline fallback
+    backups = [
+        "I can't even analyze this offline. It's that bad.",
+        "My neural link is severed, but I can still smell the spaghetti code.",
+        "Error: Code quality too low to transmit to cloud.",
+        "I'm saving my bandwidth. Try writing better code first.",
+        "The Brain is offline, but this code speaks for itself."
+    ]
+    console.print(f"\n[italic yellow]\"{random.choice(backups)}\"[/italic yellow]\n")
 
 def handle_targets(args):
     from grid.core.discovery import scan_targets
@@ -240,3 +265,34 @@ def handle_check(args):
     # Mock check for now
     time.sleep(1)
     console.print("[green]✅ Target assimilated. config.grid detected.[/green]")
+
+def handle_coin(args):
+    """Execute Binary Decision Protocol."""
+    speak("boot")
+    outcome = random.choice(["HEADS // PROCEED", "TAILS // ABORT"])
+    color = "green" if "PROCEED" in outcome else "red"
+    console.print(f"[bold {color}]>>> OUTCOME: {outcome}[/bold {color}]")
+
+def handle_zen(args):
+    """Enter Void State (Clear Screen)."""
+    import platform
+    os.system("cls" if platform.system() == "Windows" else "clear")
+    console.print("[dim italic]/// VOID STATE ACTIVE ///[/dim italic]", justify="center")
+    console.print("[dim]The grid is silent. Focus.[/dim]\n", justify="center")
+
+def handle_blame(args):
+    """Identify the guilty party."""
+    if not args:
+        console.print("[yellow]Blame what? I need a filename.[/yellow]")
+        return
+    
+    filename = args[0]
+    speak("roast")
+    
+    try:
+        import subprocess
+        result = subprocess.check_output(f"git blame {filename}", shell=True, stderr=subprocess.STDOUT).decode()
+        console.print(result)
+        console.print("\n[bold red]>>> TARGET IDENTIFIED.[/bold red]")
+    except Exception:
+        console.print("[red]Could not execute blame protocol. Is this a git repo?[/red]")
