@@ -150,4 +150,20 @@ def branch(name):
     cmd_branch.run(name)
 
 if __name__ == '__main__':
+    import sys
+    import os
+    
+    # --- CONTEXT MENU FIX ---
+    # Check if the program was launched with a folder path argument
+    # (This happens when you Right Click -> Open Grid Here)
+    if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
+        target_dir = sys.argv[1]
+        
+        # 1. Change the working directory to that folder
+        os.chdir(target_dir)
+        
+        # 2. Remove the argument so Click doesn't try to parse it as a command
+        # This makes it behave as if you just double-clicked the exe
+        sys.argv = [sys.argv[0]]
+
     main()
