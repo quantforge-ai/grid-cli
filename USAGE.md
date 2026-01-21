@@ -1,6 +1,6 @@
 # 📖 Grid CLI - Usage Guide & Examples
 
-This guide provides detailed use cases, workflows, and best practices for Grid CLI commands.
+This guide provides detailed use cases, workflows, and best practices for **Grid CLI** commands.
 
 ---
 
@@ -40,7 +40,7 @@ grid push "Add user authentication"
 # 🎉 → Success message or compliment
 ```
 
-### Scenario 2: Cowboy Push (Blocked)
+### Scenario 2: Cowboy Push (The Safety Net)
 ```bash
 # Trying to push directly to main...
 git checkout main
@@ -77,11 +77,11 @@ grid roast src/auth.py
 
 # Output:
 # ╭─ Roast Report: src/auth.py ──╮
-# │ Complexity Score: 3/10        │
-# │ Verdict: "This code looks     │
-# │ like it was written on a      │
-# │ dare."                        │
-# ╰───────────────────────────────╯
+# │ Complexity Score: 3/10       │
+# │ Verdict: "This code looks    │
+# │ like it was written on a     │
+# │ dare."                       │
+# ╰──────────────────────────────╯
 ```
 
 ### Roast Entire Project
@@ -119,7 +119,7 @@ grid roast --dev alice
 ```bash
 grid roast --dev bob --share
 
-# → Posts roast to Discord webhook
+# → Posts roast to Discord webhook defined in .grid
 # ✅ Roast sent to Discord.
 ```
 
@@ -161,7 +161,7 @@ grid home --clean
 
 ### Purge Merged Branches
 ```bash
-# Delete all  local branches that have been merged
+# Delete all local branches that have been merged
 grid purge
 
 # Output:
@@ -228,7 +228,7 @@ grid tree
 # │  ├─📄 auth.py
 # │  ├─📄 api.py
 # │  └─📁 utils/
-# │     └─📄 helpers.py
+# │    └─📄 helpers.py
 # ├─📁 tests/
 # └─📄 README.md
 ```
@@ -394,6 +394,7 @@ grid roast src/their-file.py
 
 ### Custom Secret Patterns
 Edit `.grid` file:
+
 ```json
 {
   "banned_files": [
@@ -406,8 +407,9 @@ Edit `.grid` file:
 }
 ```
 
-### Discord  Integration
+### Discord Integration
 Add webhook to `.grid`:
+
 ```json
 {
   "webhook_url": "https://discord.com/api/webhooks/YOUR_WEBHOOK"
@@ -420,12 +422,12 @@ Now roasts with `--share` flag will post to Discord!
 
 ## 💡 Pro Tips
 
-1. **Use `grid` instead of `git push`** - Save yourself from secrets leaks
-2. **Roast your code before PRs** - Fix issues before teammates find them
-3. **Enable Discord integration** - Make code reviews fun
-4. **Use `grid home --clean`** - Keep your branches tidy
-5. **Set identity first** - `grid auth yourname` for multiplayer features
-6. **Right-click integration** - Open Grid Terminal in any folder instantly
+1. **Use `grid` instead of `git push`** - Save yourself from secrets leaks.
+2. **Roast your code before PRs** - Fix issues before teammates find them.
+3. **Enable Discord integration** - Make code reviews fun.
+4. **Use `grid home --clean`** - Keep your branches tidy.
+5. **Set identity first** - `grid auth yourname` for multiplayer features.
+6. **Right-click integration** - Open Grid Terminal in any folder instantly.
 
 ---
 
@@ -456,14 +458,6 @@ grid push "safe changes"
 # Grid automatically shortens paths over 25 chars
 # ~/.../really/deep/nested/path becomes ~/.../path
 ```
-
----
-
-## 📚 Further Reading
-
-- [README.md](README.md) - Project overview and installation
-- [GitHub Issues](https://github.com/quantforge-ai/grid-cli/issues) - Report bugs
-- [GitHub Repo](https://github.com/quantforge-ai/grid-cli) - Source code
 
 ---
 

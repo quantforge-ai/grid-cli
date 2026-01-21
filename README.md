@@ -1,51 +1,52 @@
 # ⚡ Grid CLI
 
-**The Sentient Developer Companion**
+> **The Sentient Developer Companion**
 
-Grid CLI is a next-generation developer tool that combines Git automation, code quality analysis, and team collaboration with a Matrix-style hacker terminal experience. It's Git meets AI-powered roasts, with zero tolerance for bad code.
+**Grid CLI** is a next-generation developer tool that combines Git automation, code quality analysis, and team collaboration with a Matrix-style hacker terminal experience. It's Git meets AI-powered roasts, with zero tolerance for bad code.
+
+![Grid Terminal](https://via.placeholder.com/800x400?text=Grid+Terminal+Preview+Image)
 
 ---
 
 ## 🎯 Features
 
 ### 🚀 Smart Git Automation
-- **Safe Push**: Auto-stages files, scans for secrets, and blocks pushes with sensitive data
-- **Cowboy Protocol**: Automatically creates safety branches when pushing to `main`/`master`/`production`
-- **Smart Branching**: Create or switch to branches in one command
-- **Auto-Cleanup**: Remove merged branches automatically
+- **Safe Push**: Auto-stages files, scans for secrets, and blocks pushes with sensitive data.
+- **Cowboy Protocol**: Automatically creates safety branches when you try to push directly to `main`, `master`, or `production`.
+- **Smart Branching**: Create or switch to branches in a single command (`grid branch feature/login`).
+- **Auto-Cleanup**: Remove merged branches automatically to keep your repo clean.
 
 ### 🔥 Code Quality & Roasting
-- **File Analysis**: Get complexity scores and brutally honest feedback on your code
-- **Project Scanning**: Analyze entire codebases with detailed reports
-- **Developer Roasts**: PvP mode - roast teammates based on their commit history
-- **Leaderboard**: Track who's the biggest cowboy on your team
+- **File Analysis**: Get complexity scores and brutally honest feedback on your code.
+- **Project Scanning**: Analyze entire codebases with detailed reports.
+- **Developer Roasts**: **PvP Mode** - roast teammates based on their commit history.
+- **Leaderboard**: Track who is the biggest "Cowboy" on your team.
 
 ### 🎨 Interactive Terminal
-- **Matrix Green Theme**: Hacker-style UI with vibrant green/cyan colors
-- **Git Bash Prompt**: Clean `user@hostname GRID ~/.../path $` format
-- **Smart Path Shortening**: Long paths auto-truncate to `~/.../lastdir`
-- **Right-Click Integration**: "Open Grid Here ⚡" in Windows Explorer
+- **Matrix Green Theme**: Hacker-style UI with vibrant green/cyan colors.
+- **Git Bash Prompt**: Clean `user@hostname GRID ~/.../path $` format.
+- **Smart Path Shortening**: Long paths auto-truncate to `~/.../lastdir` to save screen space.
+- **Right-Click Integration**: "Open Grid Here ⚡" context menu in Windows Explorer.
 
 ### 🤝 Team Collaboration
-- **Multiplayer Roasts**: Share code roasts with your team via Discord
-- **Blame with Attitude**: Find who wrote that line and roast them
-- **Daily Standups**: Auto-generate recap reports from commit history  
-- **Cowboy Leaderboard**: See who's pushing to main the most
+- **Multiplayer Roasts**: Share code roasts with your team via Discord/Slack hooks.
+- **Blame with Attitude**: Find who wrote a specific line and shame them.
+- **Daily Standups**: Auto-generate daily recap reports from your git history.
 
 ---
 
 ## 📦 Installation
 
-### Windows Installer
-1. Download `GridSetup.exe` from releases
-2. Run the installer
+### Windows Installer (Recommended)
+1. Download `GridSetup.exe` from the [Releases Page](https://github.com/quantforge-ai/grid-cli/releases).
+2. Run the installer.
 3. Choose installation options:
-   - ✅ Add to PATH (recommended)
-   - ✅ Desktop shortcut
-   - ✅ Right-click context menu "Open Grid Here ⚡"
-4. Launch from Start Menu or Desktop
+   - ✅ **Add to PATH** (Required for global access)
+   - ✅ **Desktop Shortcut**
+   - ✅ **Right-Click Context Menu** ("Open Grid Here ⚡")
+4. Launch "Grid Terminal" from your Start Menu or Desktop.
 
-### Manual Installation
+### Manual Installation (For Devs)
 ```bash
 # Clone the repository
 git clone https://github.com/quantforge-ai/grid-cli.git
@@ -53,16 +54,17 @@ cd grid-cli
 
 # Install dependencies
 pip install -r requirements.txt
+pip install --editable .
 
-# Build executable (optional)
-python -m PyInstaller grid.spec --clean
+# (Optional) Build executable
+pyinstaller --noconfirm --onefile --console --name "grid" --icon "logo.ico" grid/main.py
 ```
 
 ---
 
 ## 🎮 Quick Start
 
-### First Time Setup
+### 1. First Time Setup
 ```bash
 # Set your identity (used for cowboy commits and roasts)
 grid auth YourName
@@ -71,13 +73,14 @@ grid auth YourName
 grid init
 ```
 
-### Launch Interactive Terminal
+### 2. Launch Interactive Terminal
+You can run grid commands in your normal terminal, or enter the **Grid Shell**:
+
 ```bash
 # Just type 'grid' to enter the Grid Terminal
 grid
 
-# Or double-click grid.exe
-# Or right-click folder → "Open Grid Here ⚡"
+# Or double-click the "Grid Terminal" icon on your desktop
 ```
 
 ---
@@ -93,7 +96,7 @@ grid
 | `grid roast [file]` | Analyze code quality (file or whole project) | `grid roast auth.py` |
 | `grid roast --dev <name>` | Roast a teammate based on git history | `grid roast --dev alice` |
 | `grid branch <name>` | Create/switch to branch | `grid branch feature/login` |
-| `grid home [--clean]` | Return to main and pull latest | `grid home --clean` |
+| `grid home [--clean]` | Return to main and pull latest changes | `grid home --clean` |
 | `grid status` | System diagnostics & project info | `grid status` |
 | `grid blame <file> <line>` | Find who wrote a line (with roast) | `grid blame app.py 42` |
 | `grid purge` | Delete merged local branches | `grid purge` |
@@ -105,7 +108,7 @@ grid
 ### Docker Actions
 - `grid docker up [-d]` - Start containers (detached mode)
 - `grid docker down` - Stop containers
-- `grid docker nuke` - Kill all running containers
+- `grid docker nuke` - Kill all running containers instantly
 - `grid docker ps` - Show container status
 
 ---
@@ -118,17 +121,12 @@ When you run `grid` without arguments, you enter the **Grid Terminal**:
 tan@obsidian GRID ~/.../grid-cli $
 ```
 
-### Available Commands in Terminal
-- All Grid commands (`push`, `roast`, `status`, etc.)
-- Standard system commands (`git`, `npm`, `ls`, `dir`, etc.)
-- Built-in shell commands (`cd`, `clear`, `exit`)
-
 ### Features
-- ✨ **Boot Animation**: Matrix-style loading sequence
-- 🎯 **Git Bash Prompt**: Shows user, hostname, and current directory
-- 📁 **Smart Paths**: Long paths auto-shorten to save space
-- 🌈 **Color Coded**: Green for commands, cyan for accents
-- ⌨️ **Full Shell**: Works like bash/cmd with Grid superpowers
+- ✨ **Boot Animation**: Matrix-style package loading sequence.
+- 🎯 **Git Bash Prompt**: Shows user, hostname, and current directory.
+- 📁 **Smart Paths**: Long paths auto-shorten (`~/.../folder`) to keep the prompt clean.
+- 🌈 **Color Coded**: Green for commands, Cyan for accents, Red for errors.
+- ⌨️ **Full Shell**: Works like bash/cmd. You can run `git`, `npm`, `cd`, `ls` inside it.
 
 ---
 
@@ -140,13 +138,14 @@ Grid creates a `.grid` file in your project root:
 {
   "project_id": "uuid-here",
   "lead_dev": "your-name",
-  "banned_files": [".env", "secrets.json"],
+  "banned_files": [".env", "secrets.json", "*.key"],
   "webhook_url": "https://discord.com/webhook/..."
 }
 ```
 
 ### Global Identity
 Stored in `~/.grid_identity`:
+
 ```json
 {
   "name": "tanishq"
@@ -160,22 +159,15 @@ Stored in `~/.grid_identity`:
 ### Secret Scanning
 Grid automatically scans for:
 - Environment files (`.env`, `.env.local`)
-- API keys and tokens
-- Private keys
+- API keys, AWS tokens, and Private Keys
 - Custom patterns defined in `.grid`
 
 ### Cowboy Protocol
-Prevents accidental pushes to protected branches:
-1. Detects push to `main`/`master`/ `dev`/`production`
-2. Creates safety branch: `cowboy/yourname/message/roast-slug`
-3. Pushes to safety branch instead
-4. Generates pre-filled PR link
-
----
-
-## 🎯 Use Cases
-
-See [USAGE.md](USAGE.md) for detailed examples and workflows.
+Prevents accidental pushes to protected branches. If you try to push to `main`:
+1. Intercepts the push.
+2. Creates a safety branch: `cowboy/yourname/message/roast-slug`.
+3. Pushes to that branch instead.
+4. Generates a pre-filled Pull Request link.
 
 ---
 
@@ -188,28 +180,20 @@ Grid CLI is built for engineers, by engineers. Contributions welcome!
 grid branch feature/awesome-feature
 
 # Make your changes
-# Grid will roast your code automatically
+# Grid will roast your code automatically if you write bad code
 
 # Push safely
-grid push "Add awesome feature"
+grid push "feat: add awesome feature"
 ```
 
 ---
 
 ## 📝 License
 
-MIT License - see LICENSE file
+MIT License - see LICENSE file.
 
 ---
 
-## 🔗 Links
-
-- **GitHub**: [quantforge-ai/grid-cli](https://github.com/quantforge-ai/grid-cli)
-- **Issues**: [Report bugs](https://github.com/quantforge-ai/grid-cli/issues)
-- **Documentation**: [USAGE.md](USAGE.md)
-
----
-
-**Built with ❤️ by the QuantForge AI Team**
+**Built with ❤️ (and sarcasm) by the QuantForge AI Team**
 
 *"The terminal you deserve, not the one you need."*
