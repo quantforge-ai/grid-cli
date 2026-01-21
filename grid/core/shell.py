@@ -17,6 +17,32 @@ def set_window_title(title):
     else:
         sys.stdout.write(f"\x1b]2;{title}\x07")
 
+def get_short_path(cwd):
+    """
+    Smartly shortens the path for the prompt.
+    Full: C:/Users/Tanishq/AppData/Local/Programs/Grid CLI
+    Short: ~/.../Programs/Grid CLI
+    """
+    home = os.path.expanduser("~")
+    
+    # 1. Replace Home with ~
+    if cwd.startswith(home):
+        path = "~" + cwd[len(home):]
+    else:
+        path = cwd
+
+    # 2. Normalize Slashes
+    path = path.replace("\\", "/")
+
+    # 3. Truncate if too long (Visual noise reduction)
+    if len(path) > 35:
+        parts = path.split("/")
+        # Keep the first part (usually ~ or Drive letter) and the last 2 parts
+        if len(parts) > 3:
+            return f"{parts[0]}/.../{parts[-2]}/{parts[-1]}"
+    
+    return path
+
 def launch():
     """
     The Main Event Loop.
@@ -53,20 +79,15 @@ def launch():
             except:
                 hostname = "localhost"
 
-            # C. Get Current Directory (Path)
-            cwd = os.getcwd()
-            home = os.path.expanduser("~")
-            if cwd.startswith(home):
-                cwd = "~" + cwd[len(home):].replace("\\", "/") # Windows fix
-            else:
-                cwd = cwd.replace("\\", "/")
+            # C. Get Current Directory (Path) - SHORTENED VERSION
+            current_path = get_short_path(os.getcwd())
             
             # D. Build the Git-Bash style string
             # Format: user@host (Green) GRID (Magenta) path (Yellow) $
             prompt_str = (
                 f"[bold green]{grid_user}@{hostname}[/] "
                 f"[bold magenta]GRID[/] "
-                f"[bold yellow]{cwd}[/] "
+                f"[bold yellow]{current_path}[/] "
                 f"[bold white]$[/] "
             )
 
