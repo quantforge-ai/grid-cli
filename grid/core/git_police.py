@@ -71,3 +71,5 @@ def get_last_commit_message(author_name):
             continue
 
     return leaking_files
+
+    

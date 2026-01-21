@@ -33,4 +33,4 @@ def spin_action(text, func):
     """
     with console.status(f"[bold green]{text}...[/]", spinner="dots"):
         return func()
-        
+
