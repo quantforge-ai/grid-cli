@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid CLI | The Sentient Developer Companion</title>
+    <style>
+        :root {
+            --neon-green: #00ff41;
+            --dark-bg: #0d0208;
+            --terminal-bg: #000000;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--neon-green);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 2rem;
+            border: 1px solid var(--neon-green);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            background: rgba(0, 0, 0, 0.9);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            color: var(--dark-bg);
+            background-color: var(--neon-green);
+            text-decoration: none;
+            font-weight: bold;
+            border: 2px solid var(--neon-green);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: transparent;
+            color: var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .version {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        .terminal-effect {
+            border-right: 2px solid var(--neon-green);
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                border-color: transparent;
+            }
+
+            50% {
+                border-color: var(--neon-green);
+            }
+        }
+
+        /* Matrix Rain Background (Simple CSS implementation) */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 255, 65, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
+            background-size: 100% 20px;
+            animation: scrolldown 10s linear infinite;
+        }
+
+        @keyframes scrolldown {
+            0% {
+                background-position: 0 -100%;
+            }
+
+            100% {
+                background-position: 0 200%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="background"></div>
+
+    <div class="container">
+        <h1>GRID CLI<span class="terminal-effect">_</span></h1>
+        <p class="subtitle">The Sentient Developer Companion</p>
+
+        <div
+            style="text-align: left; background: #111; padding: 1rem; border-left: 3px solid var(--neon-green); margin-bottom: 2rem;">
+            <code>
+                > Initializing Neural Link...<br>
+                > Git Automation: ACTIVE<br>
+                > Cowboy Protocol: ENGAGED<br>
+                > Verdict: YOUR CODE NEEDS HELP.
+            </code>
+        </div>
+
+        <h2>SELECT YOUR WEAPON</h2>
+
+        <div class="download-grid">
+            <a href="https://github.com/quantforge-ai/grid-cli/releases/latest/download/GridSetup.exe" class="btn">
+                🪟 Windows (Exe)
+            </a>
+            <a href="https://github.com/quantforge-ai/grid-cli/releases/latest/download/Grid-macOS.dmg" class="btn">
+                🍎 macOS (Dmg)
+            </a>
+            <a href="https://github.com/quantforge-ai/grid-cli/releases/latest/download/Grid-Linux.AppImage"
+                class="btn">
+                🐧 Linux (AppImage)
+            </a>
+        </div>
+
+        <div class="version">
+            Latest Version: v1.0.0 • <a href="https://github.com/quantforge-ai/grid-cli"
+                style="color: var(--neon-green);">View Source</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

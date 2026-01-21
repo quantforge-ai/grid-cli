@@ -1,0 +1,109 @@
+name: Build Grid CLI
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            artifact_name: GridSetup.exe
+            asset_name: GridSetup.exe
+          - os: macos-latest
+            artifact_name: grid
+            asset_name: Grid-macOS
+          - os: ubuntu-latest
+            artifact_name: grid
+            asset_name: Grid-Linux.AppImage
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build with PyInstaller (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        pyinstaller --noconfirm --onefile --console --name "grid" --icon "grid/assets/icon.ico" grid/main.py
+
+    - name: Compile Windows Setup (Inno Setup)
+      if: runner.os == 'Windows'
+      uses: isalvia/innosetup-compiler-action@v1
+      with:
+        filepath: setup.iss
+
+    - name: Rename Setup for Consistency (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        mv Output/GridSetup.exe dist/GridSetup.exe
+
+    - name: Build with PyInstaller (Mac/Linux)
+      if: runner.os != 'Windows'
+      run: |
+        pyinstaller --noconfirm --onefile --console --name "grid" grid/main.py
+
+    - name: Create DMG (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        # Quick DMG creation (requires create-dmg)
+        brew install create-dmg
+        mkdir -p dist/Grid-Installer
+        cp dist/grid dist/Grid-Installer/
+        create-dmg \
+          --volname "Grid CLI Installer" \
+          --window-pos 200 120 \
+          --window-size 800 400 \
+          --icon-size 100 \
+          --icon "grid" 200 190 \
+          --hide-extension "grid" \
+          --app-drop-link 600 185 \
+          "dist/Grid-macOS.dmg" \
+          "dist/Grid-Installer/"
+
+    - name: Create AppImage (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        # Simple AppImage wrap (using linuxdeploy or just tagging the binary)
+        # For CLI, standard binary is often enough, but let's just rename
+        mv dist/grid dist/Grid-Linux.AppImage
+        chmod +x dist/Grid-Linux.AppImage
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.asset_name }}
+        path: dist/${{ matrix.asset_name }}*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+    - name: Download All Artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          GridSetup.exe/GridSetup.exe
+          Grid-macOS/Grid-macOS.dmg
+          Grid-Linux.AppImage/Grid-Linux.AppImage
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
