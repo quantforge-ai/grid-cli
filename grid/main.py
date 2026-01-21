@@ -1,5 +1,6 @@
 import click
 from rich.console import Console
+from grid.core import config, cloud, utils, style, shell
 from grid.commands import dev as cmd_dev
 from grid.commands import push as cmd_push
 from grid.commands import roast as cmd_roast
@@ -14,14 +15,22 @@ from grid.commands import docker as cmd_docker
 from grid.commands import branch as cmd_branch
 from grid.commands import tree as cmd_tree
 from grid.commands import rank as cmd_rank
-from grid.core import config, cloud, utils
 
 console = Console()
 
-@click.group()
-def main():
+@click.group(invoke_without_command=True)
+@click.pass_context
+def main(ctx):
     """GRID CLI | The Sentient Developer Companion"""
-    pass
+    
+    # CASE 1: User ran a specific command (e.g., 'grid push')
+    # Click will handle the subcommand execution automatically.
+    if ctx.invoked_subcommand is not None:
+        return
+
+    # CASE 2: User ran just 'grid' (or double-clicked the .exe)
+    # Launch the dedicated Grid Terminal experience (Interactive Mode)
+    shell.launch()
 
 @main.command()
 @click.argument('repo_url')

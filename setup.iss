@@ -1,23 +1,19 @@
-; Script generated for Grid CLI v1.0
-; TARGET: The "Git Bash" Experience
-
-#define MyAppName "Grid Terminal"
-#define MyAppVersion "1.0.0"
-#define MyAppPublisher "QuantGrid"
-#define MyAppURL "https://quantgrid.io"
+; Script generated for Grid CLI
+#define MyAppName "Grid CLI"
+#define MyAppVersion "1.0"
+#define MyAppPublisher "QuantForge AI"
 #define MyAppExeName "grid.exe"
 
 [Setup]
-AppId={{C8B35038-7E55-4C3D-A320-GRIDCLI100}}
+AppId={{A3D86659-3D4F-4C46-8659-3D4F4C468659}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-AppPublisherURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
-DefaultGroupName={#MyAppName}
-; Install for current user only (no admin needed = lower friction)
+DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
-OutputBaseFilename=Grid_Terminal_Setup_v1.0
+OutputDir=Output
+OutputBaseFilename=GridSetup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -27,30 +23,32 @@ UninstallDisplayIcon={app}\{#MyAppExeName}
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Tasks]
+Name: "desktopicon"; Description: "Create a &Desktop Shortcut"; GroupDescription: "Additional icons:"; Flags: checkedonce
+Name: "addtopath"; Description: "Add 'grid' command to PATH (Recommended)"; GroupDescription: "System Integration:"; Flags: checkedonce
+
 [Files]
-; IMPORTANT: Ensure 'dist\grid.exe' exists before compiling!
+; The main executable
 Source: "dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-; 1. Start Menu Shortcut
-Name: "{group}\Grid Terminal"; Filename: "{app}\{#MyAppExeName}"
-; 2. Desktop Shortcut
-Name: "{autodesktop}\Grid Terminal"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-
-[Tasks]
-Name: "desktopicon"; Description: "Create a &Desktop icon"; GroupDescription: "Additional icons"
-Name: "contextmenu"; Description: "Add 'Open Grid Here' to Right-Click Menu"; GroupDescription: "Integrations"
+; THIS IS THE MAGIC PART
+; We name the shortcut "Grid Terminal" so users feel it's a dedicated app
+Name: "{autodesktop}\Grid Terminal"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\{#MyAppExeName}"
+Name: "{autoprograms}\Grid Terminal"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"
 
 [Registry]
-; 1. Add to PATH (So they can type 'grid' in PowerShell too)
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Flags: preservestringtype
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}'))
 
-; 2. The Right-Click Logic (Background of Folder)
-Root: HKCU; Subkey: "Software\Classes\Directory\Background\shell\Grid"; ValueType: string; ValueName: ""; ValueData: "⚡ Open Grid Here"; Tasks: contextmenu; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Directory\Background\shell\Grid"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\grid.exe"; Tasks: contextmenu
-Root: HKCU; Subkey: "Software\Classes\Directory\Background\shell\Grid\command"; ValueType: string; ValueName: ""; ValueData: """{app}\grid.exe"""; Tasks: contextmenu
-
-; 3. The Right-Click Logic (On a Folder Icon)
-Root: HKCU; Subkey: "Software\Classes\Directory\shell\Grid"; ValueType: string; ValueName: ""; ValueData: "⚡ Open Grid Here"; Tasks: contextmenu; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\Directory\shell\Grid"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\grid.exe"; Tasks: contextmenu
-Root: HKCU; Subkey: "Software\Classes\Directory\shell\Grid\command"; ValueType: string; ValueName: ""; ValueData: """{app}\grid.exe"""; Tasks: contextmenu
+[Code]
+function NeedsAddPath(Param: string): boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'Path', OrigPath)
+  then begin
+    Result := True;
+    exit;
+  end;
+  Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+end;
