@@ -1,466 +1,438 @@
-# 📖 Grid CLI - Usage Guide & Examples
+# Grid CLI - Usage Guide & Examples
 
-This guide provides detailed use cases, workflows, and best practices for **Grid CLI** commands.
+This guide provides detailed workflows and explains how to configure Grid to match your team's style.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### Initial Setup
+### 1. Set Your Identity
+Before you start, tell Grid who you are. This name is used for the Leaderboard and Multiplayer Roasts.
 
 ```bash
-# 1. Set your identity (required for multiplayer features)
-grid auth tanishq
+grid auth <your_username>
 
-# Output:
-# ✅ Identity updated to: tanishq
-# ⚠️  This name will be used for Multiplayer Roasts and Cowboy commits.
+# Example:
+grid auth neo
+# ✅ Identity updated to: neo
 ```
 
+### 2. Choose Your Path
+
+**Are you the Team Lead?** → Run `grid init` to create the project configuration.
+
+**Are you a Team Member?** → Run `grid dev <repo_url> <your_name>` to join an existing project.
+
+---
+
+## For Team Leads: Project Setup
+
+### Step 1: Initialize Project (Lead Only)
+Run this once in your project root to "install" Grid into the repo.
+
 ```bash
-# 2. Initialize Grid in your project (team lead only)
 cd your-project
 grid init
+```
 
-# This creates a .grid configuration file
+**What just happened?**
+Grid created a file named `.grid` in your folder. This is your Project Configuration File.
+
+**ACTION REQUIRED:**
+1. Open `.grid` in your code editor
+2. Add your Webhook URL (for Discord/Slack notifications)
+3. Define Banned Files (to stop team members from leaking secrets)
+4. Save the file
+
+### Step 2: Sync to Cloud Brain (Lead Only)
+Once you have edited the `.grid` file, upload it to the Grid Cloud so your team can access these rules.
+
+```bash
+grid cloud_sync
+```
+
+**Output:**
+```
+✅ Configuration synced to Cloud Brain.
+📡 Project ID: 550e8400-e29b... registered.
+```
+
+Now, when other developers run `grid dev`, they will automatically fetch these rules.
+
+---
+
+## For Team Members: Joining a Project
+
+### Use `grid dev` to Onboard
+
+When you join a team using Grid, use this command instead of manually cloning the repo:
+
+```bash
+grid dev <repo_url> <your_name>
+
+# Example:
+grid dev https://github.com/your-org/your-repo alice
+```
+
+**What happens:**
+1. Clones the repository
+2. Sets your Grid identity to `alice`
+3. Downloads the `.grid` config from Cloud Brain
+4. Downloads team webhooks and banned file patterns
+
+**Output:**
+```
+✅ Identity set to: alice
+📥 Cloning backend...
+🌥️ Syncing with Cloud Brain...
+✅ Secrets & Webhooks downloaded.
+✅ SETUP COMPLETE.
+>> Run: cd backend
 ```
 
 ---
 
-## 💾 Safe Push Workflows
+## The .grid Configuration File
 
-### Scenario 1: Normal Push
-```bash
-# Stage, scan, and push safely
-grid push "Add user authentication"
+This file controls how Grid behaves for your entire team.
 
-#  → Auto-stages all changes
-# 🔍 → Scans for secrets (.env, API keys)
-# ✅ → Commits and pushes
-# 🎉 → Success message or compliment
+### Full Example of a .grid file:
+
+```json
+{
+  "project_id": "550e8400-e29b-41d4-a716-446655440000", 
+  "lead_dev": "neo",
+  "banned_files": [
+    ".env",
+    ".env.local",
+    "secrets.json",
+    "*.key",
+    "*.pem",
+    "id_rsa"
+  ],
+  "webhook_url": "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL",
+  "services": {
+    "db": {
+      "image": "postgres:15-alpine",
+      "ports": ["5432:5432"],
+      "environment": {
+        "POSTGRES_USER": "grid_user",
+        "POSTGRES_PASSWORD": "secure_password",
+        "POSTGRES_DB": "grid_db"
+      }
+    },
+    "cache": {
+      "image": "redis:alpine",
+      "ports": ["6379:6379"]
+    }
+  }
+}
 ```
 
-### Scenario 2: Cowboy Push (The Safety Net)
+### What do I put in here?
+
+- **project_id**: DO NOT TOUCH. This connects your repo to the Cloud Database.
+- **banned_files**: The "No-Fly List." Any file matching these patterns will be blocked from being pushed.
+  - *Why?* To prevent leaking API keys.
+- **webhook_url**: Your Discord Webhook URL.
+  - *Why?* So `grid roast --share` can post directly to your team channel.
+- **services** (Optional): Docker service definitions for your infrastructure.
+  - *Why?* Team members can run `grid docker up` without creating docker-compose.yml
+  - Grid auto-generates the Docker configuration from this JSON
+  - Supports any Docker Compose service syntax (image, ports, environment, volumes, etc.)
+
+---
+
+## The Push Workflow
+
+Grid separates developers into two categories: **Sane Professionals** and **Cowboys**.
+
+### 1. The "Sane Developer" Push
+For developers who actually remember to create a branch before writing code.
+
 ```bash
-# Trying to push directly to main...
-git checkout main
-grid push "quick fix"
+# You are already on 'feature/login'
+grid push "implemented auth logic"
 
 # Output:
-# ⚠️  COWBOY DETECTED. "Did you forget what branches are for?"
-# 🔀 Taking the wheel... Moving to: cowboy/tanishq/quick-fix/reckless-behavior
-# ✅ Branch Switched.
-# 📤 Code pushed to safety branch.
-# 
-# 👉 CLICK TO OPEN PR (Pre-filled):
-# https://github.com/yourrepo/compare/main...cowboy/tanishq/quick-fix
+# 🔍 Scanning for secrets... Clean.
+# ✅ Changes staged and committed.
+# 🚀 Pushed to origin/feature/login.
+# "Suspiciously clean code. Good job."
 ```
 
-### Scenario 3: Secret Detection
+### 2. The "Cowboy" Push
+For developers who forget to create branches. You are on `main`, you made breaking changes, and you tried to push.
+
 ```bash
-# Accidentally added .env file
+# You are on 'main' (The Mistake)
+grid push "quick hotfix"
+
+# Output:
+# ⚠️  COWBOY DETECTED. "Did you forget you're on production?"
+# 🔀 Taking the wheel...
+#    Creating safety branch: cowboy/maverick/quick-hotfix/yolo-mode
+# ✅ Branch switched. Files moved.
+# 📤 Pushed to safety branch.
+# 
+# 👉 PR LINK PRE-GENERATED:
+# https://github.com/org/repo/compare/main...cowboy/maverick/quick-hotfix
+```
+
+**Why?** Grid saved you from breaking the build. It automatically branched off, moved your changes, pushed them, and gave you a PR link. The branch name includes the identity of the developer (`maverick`) so everyone knows who messed up.
+
+---
+
+## Security & Secret Blocking
+
+Grid acts as a firewall for your repo.
+
+```bash
+# Accidentally added a .env file containing keys
 grid push "update config"
 
 # Output:
 # 🚫 PUSH BLOCKED. "Are you trying to give hackers a free lunch?"
 # ⚠️  Restricted files detected: ['.env']
-# → Files auto-unstaged
+# → Files auto-unstaged.
 ```
+
+**How did it know?**
+It checked the `banned_files` list in your `.grid` file (which you configured earlier).
 
 ---
 
-## 🔥 Code Quality & Roasting
+## Roasting & Collaboration
 
-### Roast a Single File
+### Roast a Teammate
+Want to see if your teammate has been writing bad code?
+
 ```bash
-grid roast src/auth.py
+grid roast --dev <teammate_name>
 
-# Output:
-# ╭─ Roast Report: src/auth.py ──╮
-# │ Complexity Score: 3/10       │
-# │ Verdict: "This code looks    │
-# │ like it was written on a     │
-# │ dare."                       │
-# ╰──────────────────────────────╯
-```
-
-### Roast Entire Project
-```bash
-grid roast
-
-# Output:
-# ┌─ Artifact Analysis Report ────┐
-# │ File Name        │ Score │ Status     │
-# ├──────────────────┼───────┼────────────┤
-# │ api/routes.py    │ 2/10  │ 🔥 Toxic   │
-# │ utils/helpers.py │ 6/10  │ ⚠️  Messy  │
-# │ core/auth.py     │ 9/10  │ ✅ Clean   │
-# └──────────────────┴───────┴────────────┘
-# 
-# AGGREGATE SCORE: 5.7/10
-# "Not bad, but I've seen better code from interns."
-```
-
-### Roast a Teammate (PvP Mode)
-```bash
+# Example:
 grid roast --dev alice
 
 # Output:
 # ╭─ Roasting alice ──────────────╮
-# │ Last Commit: "fixed typo"    │
+# │ Last Commit: "typo fix"      │
 # │                              │
 # │ Grid says: "Took you 3       │
-# │ commits to fix a typo? Ever  │
-# │ heard of spell check?"       │
+# │ commits to fix one word?     │
+# │ Efficient."                  │
 # ╰──────────────────────────────╯
 ```
 
-### Share Roast with Team
+### Multiplayer Roast (Discord)
+Broadcast the shame to your entire team.
+
 ```bash
 grid roast --dev bob --share
+```
 
-# → Posts roast to Discord webhook defined in .grid
-# ✅ Roast sent to Discord.
+**How does it know where to post?**
+It uses the `webhook_url` you added to the `.grid` file.
+
+---
+
+## The Interactive Terminal
+
+Tired of typing `grid` before every command? Enter the Grid Shell.
+
+```bash
+# Launch the shell
+grid
+```
+
+Inside the shell, you don't need prefixes. It behaves like a normal terminal but supercharged.
+
+```bash
+# Your prompt:
+neo@matrix GRID ~/projects/backend $
+
+# Just type commands directly:
+push "refactor api"       # Runs: grid push ...
+roast app.py              # Runs: grid roast ...
+status                    # Runs: grid status
+
+# System commands still work:
+npm install
+git status
+ls -la
 ```
 
 ---
 
-## 🌿 Branch Management
+## Additional Useful Commands
 
-### Smart Branch Switching
+### Branch Cleanup: `grid purge`
+Remove all local branches that have been merged into main.
+
 ```bash
-# Create new branch (if doesn't exist)
-grid branch feature/login-ui
-
-# Switch to existing branch
-grid branch feature/login-ui
-
-# Both commands work the same way!
-```
-
-### Return Home
-```bash
-# Go back to main and pull latest
-grid home
-
-# Output:
-# 🏠 Switching to main...
-# 📥 Pulling latest changes...
-# ✅ Up to date with origin/main
-```
-
-### Clean Up After Yourself
-```bash
-# Return to main and delete your old branch
-grid home --clean
-
-# → Switches to main
-# → Pulls changes
-# → Deletes the branch you were on
-```
-
-### Purge Merged Branches
-```bash
-# Delete all local branches that have been merged
 grid purge
 
 # Output:
-# 🗑️  Deleting merged branches...
+# 🗑️ Deleting merged branches...
 # ✅ Removed: feature/old-login
-# ✅ Removed: bugfix/header-css
+# ✅ Removed: bugfix/header-fix
 # 🎯 Cleaned up 2 branches
 ```
 
----
+### Daily Standup: `grid recap`
+Generate a summary of your day's work from git history.
 
-## 🔍 Git Blame with Attitude
-
-### Find Who Broke It
 ```bash
-grid blame src/payment.py 127
+grid recap
 
 # Output:
-# ╭─ Blame Detective ─────────────╮
-# │ File: src/payment.py:127     │
-# │ Author: alice                │
-# │ Commit: "refactor payment"   │
-# │ Date: 2 days ago             │
+# ╭─ Daily Recap - 2026-01-22 ───╮
+# │ Commits Today: 8             │
+# │ Files Changed: 14            │
+# │ Lines Added: +237            │
+# │ Lines Removed: -89           │
 # │                              │
-# │ Grid says: "Of course it     │
-# │ was alice. She writes bugs   │
-# │ like it's her job."          │
+# │ Top Commits:                 │
+# │ • "Add OAuth integration"    │
+# │ • "Fix login redirect"       │
+# │ • "Update dependencies"      │
 # ╰──────────────────────────────╯
 ```
 
-### Share the Blame
-```bash
-grid blame auth.py 42 --share
+### System Status: `grid status`
+View diagnostics and project information.
 
-# → Posts blame info + roast to team Discord
-```
-
----
-
-## 📊 System & Project Info
-
-### Status Check
 ```bash
 grid status
 
 # Output:
-# ╭─ SYSTEM DIAGNOSTICS ──────────╮
-# │ Current Branch: feature/login │
-# │ Git Status: Clean             │
-# │ Identity: tanishq             │
-# │ Project: quantforge-terminal  │
-# │ Files Tracked: 127            │
-# │ Last Commit: 2 hours ago      │
-# ╰───────────────────────────────╯
+# ╭─ SYSTEM DIAGNOSTICS ─────────╮
+# │ Current Branch: feature/auth │
+# │ Git Status: Clean            │
+# │ Identity: neo                │
+# │ Project: backend-api         │
+# │ Last Commit: 2 hours ago     │
+# ╰──────────────────────────────╯
 ```
 
-### View Project Tree
+### Git Blame with Attitude: `grid blame`
+Find who wrote a specific line and get a roast.
+
+```bash
+grid blame src/auth.py 42
+
+# Output:
+# ╭─ Blame Detective ─────────────╮
+# │ File: src/auth.py:42         │
+# │ Author: alice                │
+# │ Commit: "quick fix"          │
+# │ Date: 3 days ago             │
+# │                              │
+# │ Grid says: "This line looks  │
+# │ like it was written at 3am." │
+# ╰──────────────────────────────╯
+
+# Share to team Discord
+grid blame src/auth.py 42 --share
+```
+
+### Cowboy Leaderboard: `grid rank`
+See who's been pushing to protected branches the most.
+
+```bash
+grid rank
+
+# Output:
+# ╭─ Recklessness Ranking ───────╮
+# │ Rank │ Developer │ Cowboy     │
+# │      │           │ Incidents  │
+# ├──────┼───────────┼────────────┤
+# │  #1  │ Alice     │     23     │
+# │      │           │ 🤠 Sheriff │
+# │      │           │ of Chaos   │
+# ├──────┼───────────┼────────────┤
+# │  #2  │ Bob       │     17     │
+# │      │           │ 🐴 Deputy  │
+# │      │           │ Danger     │
+# ├──────┼───────────┼────────────┤
+# │  #3  │ Neo       │      2     │
+# │      │           │ Village    │
+# │      │           │ Idiot      │
+# ╰───────────────────────────────╯
+# 
+# "Alice, you're the reason we can't have nice things."
+```
+
+**How it works:** Grid scans remote cowboy branches to count violations per developer.
+
+### Project Structure: `grid tree`
+Visualize your project's file structure.
+
 ```bash
 grid tree
 
 # Output:
-# 📂 quantforge-terminal/
+# 📂 backend-api/
 # ├─📁 src/
 # │  ├─📄 auth.py
 # │  ├─📄 api.py
 # │  └─📁 utils/
-# │    └─📄 helpers.py
+# │     └─📄 helpers.py
 # ├─📁 tests/
 # └─📄 README.md
 ```
 
 ---
 
-## 🏆 Leaderboard & Analytics
+## Keeping Grid Updated
 
-### Cowboy Leaderboard
+### Self-Update: `grid update`
+Grid can update itself! Run this command to check for and install the latest version.
+
 ```bash
-grid rank
+grid update
 
-# Output:
-# ╭─ COWBOY LEADERBOARD ──────────╮
-# │ Rank │ Name      │ Direct Pushes │
-# ├──────┼───────────┼───────────────┤
-# │ 🤠 1 │ alice     │ 23            │
-# │ 🤦 2 │ bob       │ 17            │
-# │ ✅ 3 │ tanishq   │ 2             │
-# ╰───────────────────────────────────╯
-# 
-# "alice, you're the reason we can't have nice things."
+# For pip/dev users:
+# Downloads and installs latest version from GitHub
+# Output: ✅ ASSIMILATION COMPLETE. RESTART GRID.
+
+# For .exe users:
+# Opens browser to download latest installer
+# Output: Opening download portal...
 ```
 
-### Daily Standup Report
-```bash
-grid recap
-
-# Output:
-# ╭─ Daily Recap - 2026-01-21 ────╮
-# │ Commits Today: 8              │
-# │ Files Changed: 14             │
-# │ Lines Added: +237             │
-# │ Lines Removed: -89            │
-# │                               │
-# │ Top Commits:                  │
-# │ • "Add OAuth integration"     │
-# │ • "Fix login redirect"        │
-# │ • "Update dependencies"       │
-# ╰───────────────────────────────╯
-```
+**Manual update methods:**
+- **Developers**: `pip install --upgrade git+https://github.com/quantforge-ai/grid-cli.git`
+- **Windows users**: Download latest `GridSetup.exe` and run it
 
 ---
 
-## 🐳 Docker Management
+## Summary of Commands
 
-### Start Containers
-```bash
-# Start in foreground
-grid docker up
-
-# Start in background (detached)
-grid docker up -d
-```
-
-### Stop Containers
-```bash
-grid docker down
-```
-
-### Nuclear Option
-```bash
-# Kill ALL Docker containers
-grid docker nuke
-
-# ⚠️  WARNING: Kills everything, not just this project!
-```
-
-### Check Status
-```bash
-grid docker ps
-
-# Shows running containers
-```
+| Command | Action |
+|---------|--------|
+| `grid auth <name>` | Sets your identity |
+| `grid init` | (Lead Only) Creates local configuration |
+| `grid cloud_sync` | (Lead Only) Uploads config to Cloud Brain |
+| `grid dev <url> <name>` | (Team Member) Clone repo and download config |
+| `grid update` | Check for updates and upgrade Grid |
+| `grid push "<msg>"` | Smart push (handles secrets & cowboy mode) |
+| `grid branch <name>` | Creates or switches to a branch |
+| `grid home [--clean]` | Returns to main and pulls updates |
+| `grid status` | Shows system diagnostics and project info |
+| `grid roast [file]` | Analyzes code quality (file or whole project) |
+| `grid roast --dev <name> [--share]` | Roasts a teammate (optionally share to Discord) |
+| `grid blame <file> <line> [--share]` | Find who wrote a line (with roast) |
+| `grid purge` | Deletes all merged local branches |
+| `grid recap` | Generates daily standup report from git history |
+| `grid rank` | Shows the Cowboy Leaderboard |
+| `grid tree` | Visualizes project structure |
+| `grid docker up [-d]` | Starts Docker containers (detached mode optional) |
+| `grid docker down` | Stops Docker containers |
+| `grid docker nuke` | Kills all running containers |
+| `grid docker ps` | Shows container status |
 
 ---
 
-## 🎮 Interactive Terminal Usage
+**Happy Coding!**
 
-### Launch Grid Terminal
-```bash
-# Method 1: Type 'grid'
-grid
-
-# Method 2: Double-click grid.exe
-
-# Method 3: Right-click folder → "Open Grid Here ⚡"
-```
-
-### Inside the Terminal
-```bash
-# Your prompt looks like this:
-tan@obsidian GRID ~/.../project $
-
-# Run Grid commands (no 'grid' prefix needed)
-push "my changes"
-roast app.py
-status
-
-# Run system commands
-git log -n 5
-npm install
-ls -la
-
-# Built-in commands
-cd ../other-project
-clear
-exit
-```
-
----
-
-## 🔄 Common Workflows
-
-### Daily Workflow
-```bash
-# 1. Start your day
-grid home              # Get latest from main
-
-# 2. Create feature branch
-grid branch feature/new-thing
-
-# 3. Make changes, then push
-grid push "implement new thing"
-
-# 4. Check code quality
-grid roast
-
-# 5. End of day
-grid recap             # Generate standup report
-```
-
-### Team Lead Workflow
-```bash
-# Initialize project
-grid init
-
-# Set up webhooks in .grid file
-# (Add Discord webhook URL)
-
-# Monitor team
-grid rank              # See who's cowboys
-grid blame problem.py 50  # Find issues
-
-# Share roasts
-grid roast --dev <teammate> --share
-```
-
-### Code Review Workflow
-```bash
-# Before opening PR
-grid roast             # Check your own code first
-grid push "feature complete"
-
-# Review teammate's code
-git checkout their-branch
-grid roast src/their-file.py
-```
-
----
-
-## ⚙️ Advanced Configuration
-
-### Custom Secret Patterns
-Edit `.grid` file:
-
-```json
-{
-  "banned_files": [
-    ".env",
-    ".env.local",
-    "secrets.json",
-    "*.key",
-    "*.pem"
-  ]
-}
-```
-
-### Discord Integration
-Add webhook to `.grid`:
-
-```json
-{
-  "webhook_url": "https://discord.com/api/webhooks/YOUR_WEBHOOK"
-}
-```
-
-Now roasts with `--share` flag will post to Discord!
-
----
-
-## 💡 Pro Tips
-
-1. **Use `grid` instead of `git push`** - Save yourself from secrets leaks.
-2. **Roast your code before PRs** - Fix issues before teammates find them.
-3. **Enable Discord integration** - Make code reviews fun.
-4. **Use `grid home --clean`** - Keep your branches tidy.
-5. **Set identity first** - `grid auth yourname` for multiplayer features.
-6. **Right-click integration** - Open Grid Terminal in any folder instantly.
-
----
-
-## 🐛 Troubleshooting
-
-### "No .grid file found"
-```bash
-# Solution: Initialize Grid in your project
-grid init
-```
-
-### "Identity not set"
-```bash
-# Solution: Set your name
-grid auth yourname
-```
-
-### "Push blocked - secrets detected"
-```bash
-# Grid found sensitive files
-# Check what was blocked, remove from staging:
-git reset .env
-grid push "safe changes"
-```
-
-### Path too long in terminal
-```bash
-# Grid automatically shortens paths over 25 chars
-# ~/.../really/deep/nested/path becomes ~/.../path
-```
-
----
-
-**Happy Coding! 🚀**
-
-*Remember: Grid is watching. Write good code.*
+*Grid is watching.*

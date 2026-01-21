@@ -4,3 +4,4 @@ requests
 praw
 tree-sitter
 tree-sitter-languages
+pyyaml

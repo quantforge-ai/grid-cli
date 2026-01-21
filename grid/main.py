@@ -15,6 +15,7 @@ from grid.commands import docker as cmd_docker
 from grid.commands import branch as cmd_branch
 from grid.commands import tree as cmd_tree
 from grid.commands import rank as cmd_rank
+from grid.commands import update as cmd_update
 
 console = Console()
 
@@ -148,6 +149,11 @@ def branch(name):
     Usage: grid branch feature/login
     """
     cmd_branch.run(name)
+
+@main.command()
+def update():
+    """Checks for updates and upgrades Grid."""
+    cmd_update.run()
 
 if __name__ == '__main__':
     import sys
