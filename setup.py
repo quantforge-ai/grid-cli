@@ -6,16 +6,16 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'click',
-        'rich',
+        'Click',
         'requests',
-        'praw',
-        # 'tree-sitter', # Uncomment if/when you use C++ support
+        'rich',
+        'urllib3',
     ],
     entry_points={
         'console_scripts': [
-            # TARGET: module 'grid.main', function 'run_cli'
-            'grid = grid.main:main',  
+            'grid = grid.main:main',
         ],
     },
+    author='QuantForge AI',
+    description='A sentient developer companion that judges your code.',
 )
