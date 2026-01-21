@@ -6,11 +6,9 @@ from grid.core import utils, cloud, config
 def run(repo_url, dev_name):
     utils.print_header(f"ONBOARDING AGENT: {dev_name}")
 
-    # 1. SET IDENTITY
     config.set_global_identity(dev_name)
     utils.print_success(f"Identity set to: [bold cyan]{dev_name}[/]")
 
-    # 2. CLONE REPO
     folder_name = repo_url.rstrip("/").split("/")[-1].replace(".git", "")
     
     if os.path.exists(folder_name):
@@ -20,8 +18,6 @@ def run(repo_url, dev_name):
             lambda: subprocess.run(["git", "clone", repo_url], check=True))
         utils.print_success("Repository cloned.")
 
-    # 3. ENTER & CONFIGURE
-    # Note: We can't cd the user's actual shell, so we setup the config inside the folder
     target_path = os.path.abspath(folder_name)
     
     utils.print_header("Syncing with Cloud Brain...")
@@ -33,4 +29,4 @@ def run(repo_url, dev_name):
         utils.print_success("Secrets & Webhooks downloaded.")
         utils.print_success(f"\n[bold green]SETUP COMPLETE.[/]\n>> Run: cd {folder_name}")
     else:
-        utils.print_warning(f"No cloud config found for {repo_url}.\n(Ask your Lead to run 'grid cloud' inside the project).")
+        utils.print_warning(f"No cloud config found for {repo_url}.\n(Ask your Lead to run 'grid init' inside the project).")

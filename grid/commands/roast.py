@@ -1,93 +1,135 @@
 import os
-import subprocess
-import random
-import click
-from grid.core import utils, analyzer, scraper, broadcaster, git_police
-
-# ... (Keep get_random_roast and get_last_commit_stats exactly as they were) ...
-def get_random_roast(category="roasts"):
-    try:
-        db = scraper.load_db() 
-        return random.choice(db.get(category, ["System offline. You got lucky."]))
-    except:
-        return "Database Error."
-
-def get_last_commit_stats(developer):
-    # (Same code as before - keeping it brief for the response)
-    try:
-        cmd = f'git log --author="{developer}" -n 1 --pretty=format:"%h|%s"'
-        result = subprocess.check_output(cmd, shell=True).decode().strip()
-        if not result: return None
-        commit_hash, message = result.split("|", 1)
-        stat_cmd = f"git show {commit_hash} --shortstat --oneline"
-        stats = subprocess.check_output(stat_cmd, shell=True).decode().strip()
-        files_cmd = f"git diff-tree --no-commit-id --name-only -r {commit_hash}"
-        files = subprocess.check_output(files_cmd, shell=True).decode().splitlines()
-        return {"hash": commit_hash, "message": message, "stats": stats, "files": files}
-    except:
-        return None
-
-# --- COMMANDS ---
+from rich.table import Table
+from rich import box
+from grid.core import utils, analyzer, scraper, config, broadcaster, git_police
 
 def roast_file(target):
-    # (Same as before)
-    pass 
-
-def roast_project():
-    # (Same as before)
-    pass
-
-def roast_developer(developer, recent, share):
-    """
-    The main logic handles --share now.
-    """
-    utils.print_header(f"Targeting developer identity: [bold red]{developer}[/]")
-    
-    data = get_last_commit_stats(developer)
-    if not data:
-        utils.print_error(f"User '{developer}' not found in git history.")
+    """Analyzes a single file and roasts it."""
+    if not os.path.exists(target):
+        utils.print_error(f"File not found: {target}")
         return
 
-    commit_msg = data['message']
-    files = data['files']
+    utils.print_header(f"ANALYZING: {target}")
     
-    utils.print_dashboard({
-        "Target": developer,
-        "Last Commit": data['hash'],
-        "Message": f"'{commit_msg}'",
-        "Files Changed": f"{len(files)}"
-    })
-
-    # --- JUDGEMENT LOGIC (Same as before) ---
-    is_good_commit = True
-    critique = ""
-
-    if len(commit_msg) < 10:
-        is_good_commit = False
-        critique = "Commit message is shorter than a tweet."
-    elif len(commit_msg) < 20 and any(x in commit_msg.lower() for x in ["fix", "wip", "update"]):
-        is_good_commit = False
-        critique = "Using generic words without context?"
-
-    if is_good_commit and files:
-        target_code = next((f for f in files if f.endswith('.py')), None)
-        if target_code and os.path.exists(target_code):
-             code_verdict = analyzer.scan_file(target_code)
-             if "adequate" not in code_verdict.lower():
-                 is_good_commit = False
-                 critique = f"Code Analysis Failed: {code_verdict}"
-
-    # --- VERDICT ---
-    flavor = ""
-    if is_good_commit:
-        flavor = get_random_roast("compliments")
-        utils.print_success(f"Verdict: Solid work. \n>> Grid: {flavor}")
+    # 1. Get Complexity Stats
+    stats = analyzer.analyze_file(target)
+    
+    # 2. Determine Verdict
+    if stats['score'] < 5:
+        verdict = scraper.get_random_roast("roasts")
+        color = "red"
     else:
-        flavor = get_random_roast("roasts")
-        if not critique: critique = "Your git history is a cry for help."
-        utils.print_warning(f"Verdict: {critique}\n>> Grid: {flavor}")
+        verdict = scraper.get_random_roast("compliments")
+        color = "green"
 
-    # --- THE SHARE LOGIC ---
+    # 3. Print Report
+    utils.print_panel(
+        f"[bold]Complexity Score:[/ {color}] {stats['score']}/10\n"
+        f"[bold]Verdict:[/ {color}] {verdict}",
+        title=f"Roast Report: {target}"
+    )
+
+def roast_project():
+    """Analyzes the entire directory and lists files in a table."""
+    utils.print_header("SCANNING PROJECT SECTOR")
+    utils.spin_action("Reading file structure...", lambda: None) # Fake spin for effect
+
+    results = []
+    total_score = 0
+    file_count = 0
+
+    # 1. Walk the directory
+    for root, _, files in os.walk("."):
+        # Skip garbage folders
+        if any(x in root for x in [".git", "__pycache__", "venv", "node_modules", ".grid", "dist", "build"]):
+            continue
+            
+        for file in files:
+            if file.endswith(".py"):
+                path = os.path.join(root, file)
+                
+                # Analyze individual file
+                try:
+                    stats = analyzer.analyze_file(path)
+                    score = stats['score']
+                    
+                    # Assign Status Icon based on score
+                    if score < 5:
+                        status = "[bold red]🔥 Toxic[/]"
+                    elif score < 8:
+                        status = "[yellow]⚠️  Messy[/]"
+                    else:
+                        status = "[bold green]✅ Clean[/]"
+                    
+                    results.append((path, score, status))
+                    total_score += score
+                    file_count += 1
+                except:
+                    # Skip unreadable files
+                    continue
+
+    if file_count == 0:
+        utils.print_warning("No Python files found. Is this a real project?")
+        return
+
+    # 2. Sort by Score (Worst files at the top so they are visible)
+    results.sort(key=lambda x: x[1])
+
+    # 3. Create & Print Table
+    table = Table(title="Artifact Analysis Report", box=box.ROUNDED, show_lines=True)
+    table.add_column("File Name", style="cyan")
+    table.add_column("Integrity", justify="right")
+    table.add_column("Status", justify="center")
+
+    for path, score, status in results:
+        # Clean up path for display (remove ./ and win style slashes)
+        clean_path = path.replace(".\\", "").replace("./", "")
+        table.add_row(clean_path, f"{score}/10", status)
+
+    utils.console.print(table)
+
+    # 4. Final Verdict
+    avg = total_score / file_count
+    utils.print_header(f"AGGREGATE SCORE: {avg:.1f}/10")
+    
+    if avg < 5:
+        verdict = scraper.get_random_roast("roasts")
+        color = "red"
+    else:
+        verdict = scraper.get_random_roast("compliments")
+        color = "green"
+
+    utils.print_panel(f"[{color}]\"{verdict}\"[/]", title="Final Verdict")
+
+def roast_developer(target_name, recent, share):
+    """Roasts a specific person based on their git history."""
+    utils.print_header(f"TARGET ACQUIRED: {target_name}")
+    
+    # 1. Identify User
+    identity = config.get_global_identity()
+    
+    # 2. Analyze their last commit
+    commit_msg = git_police.get_last_commit_message(target_name)
+    if not commit_msg or commit_msg == "Unknown Commit":
+        utils.print_error(f"No recent commits found for {target_name}.")
+        return
+
+    # 3. Generate Roast
+    # If roasting yourself, be nicer (maybe). If roasting others, go hard.
+    if target_name.lower() == identity.lower():
+        roast = scraper.get_random_roast("roasts")
+    else:
+        roast = scraper.get_random_roast("roasts")
+
+    # 4. Display
+    utils.print_panel(
+        f"[bold]Last Commit:[/bold] \"{commit_msg}\"\n\n"
+        f"[bold red]Grid says:[/bold red] {roast}",
+        title=f"Roasting {target_name}"
+    )
+
+    # 5. Share to Discord (PvP Mode)
     if share:
-        attacker = git_police.get_git_user() # We know who YOU are
-        broadcaster.broadcast_roast(attacker, developer, critique or "Clean Commit", flavor, is_good_commit)
+        utils.spin_action("Broadcasting to Team Channel...", 
+            lambda: broadcaster.broadcast_roast(identity, target_name, commit_msg, roast, is_clean=False))
+        utils.print_success("Roast sent to Discord.")

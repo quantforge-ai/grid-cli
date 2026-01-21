@@ -1,4 +1,3 @@
-import click
 import subprocess
 import os
 from grid.core import utils, config, scraper, broadcaster
@@ -41,3 +40,4 @@ def run(target, line, share):
     # 4. Public Shame
     if share:
         broadcaster.broadcast_roast(identity, author, f"Suspect Line {line} in {target}", roast, False)
+        utils.print_success("Shame broadcasted to team.")

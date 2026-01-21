@@ -8,13 +8,15 @@ def run():
     try:
         raw = subprocess.check_output(["git", "branch", "--merged"], stderr=subprocess.DEVNULL).decode()
     except:
-        utils.print_error("Git error.")
+        utils.print_error("Git error: Not a repository or no branches found.")
         return
 
     branches = [b.strip().replace("* ", "") for b in raw.splitlines()]
     
-    # 2. Filter Protected
-    protected = ["main", "master", "dev", "production", git_police.get_current_branch()]
+    # 2. Filter Protected Branches
+    current = git_police.get_current_branch()
+    protected = ["main", "master", "dev", "production", current]
+    
     to_delete = [b for b in branches if b not in protected]
     
     if not to_delete:
