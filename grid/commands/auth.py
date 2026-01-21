@@ -1,4 +1,3 @@
-import click
 from grid.core import utils, config
 
 def run(name):

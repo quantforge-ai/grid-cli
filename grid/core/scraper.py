@@ -3,10 +3,12 @@ import json
 import os
 import random
 import time
-from grid.core import utils
+import threading
 
 # --- CONFIGURATION ---
-DATABASE_PATH = os.path.join(os.path.dirname(__file__), "../data/rules.json")
+# Dynamically find grid/data/rules.json relative to this file
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATABASE_PATH = os.path.join(BASE_DIR, "data", "rules.json")
 
 REDDIT_SOURCES = [
     ("ProgrammerHumor", "roast"), 
@@ -15,7 +17,9 @@ REDDIT_SOURCES = [
     ("ProgrammerHumor", "compliment") 
 ]
 
-def load_db():
+# --- CORE FUNCTIONS ---
+
+def load_rules():
     """
     Loads the rules.json file.
     If missing/corrupt, returns the 'Seed Personality' (Factory Defaults).
@@ -53,14 +57,40 @@ def load_db():
             "CONTAMINANT DETECTED. The Grid Authority has seized your secrets.",
             "This file is now serving a life sentence in Digital Jail.",
             "Attempted breach of silicon security. Nice try, human."
+        ],
+        "roast_immune": [
+            "You're actually following best practices? Boring.",
+            "Another clean push. You're making my job as a critic very difficult.",
+            "Your competence is annoying. I haven't had to use my safety protocols in days."
         ]
     }
 
-def save_db(db):
+def save_rules(db):
     """Saves the updated jokes to disk."""
-    os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
-    with open(DATABASE_PATH, 'w') as f:
-        json.dump(db, f, indent=4)
+    try:
+        os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
+        with open(DATABASE_PATH, 'w') as f:
+            json.dump(db, f, indent=4)
+    except Exception as e:
+        print(f"Warning: Failed to save Grid memory: {e}")
+
+def get_random_roast(category="roasts"):
+    """
+    Fetches a random string from the requested category.
+    Used by push.py and roast.py.
+    """
+    data = load_rules()
+    
+    # Fallback if category is empty/missing
+    defaults = ["System Error: Sarcasm module offline."]
+    options = data.get(category, defaults)
+    
+    if not options:
+        return defaults[0]
+        
+    return random.choice(options)
+
+# --- SCRAPER LOGIC ---
 
 def fetch_reddit_sass(subreddit, mode):
     """Scrapes Reddit JSON for new material."""
@@ -77,49 +107,57 @@ def fetch_reddit_sass(subreddit, mode):
         for p in posts:
             title = p['data']['title']
             
-            # Filter 1: Length
+            # Filter 1: Length (Short enough for CLI, long enough to hurt)
             if len(title) > 120 or len(title) < 10: continue
             
             # Filter 2: Keywords
             title_lower = title.lower()
             if mode == "roast":
-                keywords = ["hate", "stupid", "why", "broken", "pain", "hell", "spaghetti", "bug"]
+                keywords = ["hate", "stupid", "why", "broken", "pain", "hell", "spaghetti", "bug", "worst"]
                 if any(x in title_lower for x in keywords): results.append(title)
             elif mode == "compliment":
-                keywords = ["finally", "fixed", "clean", "beautiful", "works", "fast"]
+                keywords = ["finally", "fixed", "clean", "beautiful", "works", "fast", "solved"]
                 if any(x in title_lower for x in keywords): results.append(title)
                     
         return results
     except Exception:
         return []
 
-def update_wit():
-    """Background Task: Updates the database with new content."""
-    db = load_db()
+def run_scraper_task():
+    """The Worker: Fetches new content and updates the DB."""
+    db = load_rules()
     
     # 1. Fetch Roasts
     new_roasts = []
     for sub, flavor in REDDIT_SOURCES:
         if flavor == "roast":
             new_roasts += fetch_reddit_sass(sub, "roast")
-            time.sleep(0.5) 
+            time.sleep(1) # Be polite to Reddit API
 
     # 2. Fetch Compliments
     new_compliments = fetch_reddit_sass("ProgrammerHumor", "compliment")
     
     # 3. Merge & Deduplicate
-    current_roast_set = set(db["roasts"])
+    current_roast_set = set(db.get("roasts", []))
     for r in new_roasts: current_roast_set.add(r)
     db["roasts"] = list(current_roast_set)
 
-    current_comp_set = set(db["compliments"])
+    current_comp_set = set(db.get("compliments", []))
     for c in new_compliments: current_comp_set.add(c)
     db["compliments"] = list(current_comp_set)
     
     # 4. Save
-    save_db(db)
+    save_rules(db)
+
+def trigger_background_update():
+    """Launches the scraper in a separate thread (Non-blocking)."""
+    # We only run the scraper occasionally (e.g. 10% chance) to save bandwidth
+    # or just run it every time. Let's run it every time for now but silently.
+    thread = threading.Thread(target=run_scraper_task)
+    thread.daemon = True
+    thread.start()
 
 if __name__ == "__main__":
     print("🕷️  Grid Scraper: Hunting for fresh insults...")
-    update_wit()
+    run_scraper_task()
     print("✅ Database updated.")

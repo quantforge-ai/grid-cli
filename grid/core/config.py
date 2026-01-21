@@ -1,49 +1,43 @@
-import requests
-import subprocess
-from grid.core import utils
+import json
+import os
+from pathlib import Path
 
-# REPLACE THIS WITH YOUR ACTUAL VERCEL URL
-BRAIN_URL = "https://grid-brain.vercel.app/api" 
+# Project-level config (lives in repo root)
+PROJECT_CONFIG = ".grid"
 
-def get_git_remote():
-    """Extracts the unique GitHub URL to use as Project ID."""
+# Global identity (lives in user's home folder)
+GLOBAL_ID_FILE = os.path.join(str(Path.home()), ".grid_identity")
+
+def load_project_config():
+    """Loads the .grid file from the current directory."""
+    if os.path.exists(PROJECT_CONFIG):
+        try:
+            with open(PROJECT_CONFIG, "r") as f:
+                return json.load(f)
+        except:
+            return None
+    return None
+
+def save_project_config(data):
+    """Saves project settings to .grid."""
+    with open(PROJECT_CONFIG, "w") as f:
+        json.dump(data, f, indent=4)
+
+def set_global_identity(name):
+    """Saves 'Tanishq' to ~/.grid_identity."""
     try:
-        url = subprocess.check_output(["git", "remote", "get-url", "origin"], stderr=subprocess.DEVNULL).decode().strip()
-        # Clean URL: git@github.com:User/Repo.git -> https://github.com/User/Repo
-        if url.startswith("git@"):
-            url = url.replace(":", "/").replace("git@", "https://")
-        if url.endswith(".git"):
-            url = url[:-4]
-        return url
-    except:
-        return None
-
-def register_project(config_data):
-    """Lead: Pushes .grid config to Cloud Brain."""
-    repo_url = get_git_remote()
-    if not repo_url:
-        utils.print_error("Not a git repo. Cannot generate Project ID.")
-        return False
-
-    payload = {
-        "project_id": repo_url, 
-        "config": config_data
-    }
-    
-    try:
-        # In a real scenario, you'd want some auth header here too
-        resp = requests.post(f"{BRAIN_URL}/register", json=payload, timeout=5)
-        return resp.status_code == 200
+        with open(GLOBAL_ID_FILE, "w") as f:
+            json.dump({"name": name}, f)
     except Exception as e:
-        utils.print_error(f"Cloud Connection Failed: {e}")
-        return False
+        print(f"Warning: Could not save identity: {e}")
 
-def fetch_project_config(repo_url):
-    """Dev: Downloads config using Repo URL as key."""
-    try:
-        resp = requests.get(f"{BRAIN_URL}/connect", params={"project_id": repo_url}, timeout=5)
-        if resp.status_code == 200:
-            return resp.json()
-        return None
-    except:
-        return None
+def get_global_identity():
+    """Returns 'Tanishq' or 'Stranger'."""
+    if os.path.exists(GLOBAL_ID_FILE):
+        try:
+            with open(GLOBAL_ID_FILE, "r") as f:
+                data = json.load(f)
+                return data.get("name", "Stranger")
+        except:
+            pass
+    return "Stranger"

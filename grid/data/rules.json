@@ -1,0 +1,33 @@
+{
+    "roasts": [
+        "Your code looks like it was written by a drunk AI.",
+        "I've seen better logic in a fortune cookie.",
+        "This commit is the reason we can't have nice things.",
+        "You are the reason Stack Overflow has a server cost.",
+        "Is this 'agile' or just fragile?",
+        "Your variable naming convention is 'chaos'."
+    ],
+    "compliments": [
+        "Suspiciously clean. Who wrote this for you?",
+        "It compiles. It runs. I am... confused.",
+        "Finally, some delicious logic.",
+        "I checked it twice. It's actually good."
+    ],
+    "cowboy_shame": [
+        "Pushing to main? Brave, but foolish.",
+        "I saved you from yourself. You're welcome.",
+        "Cowboy detected. Yee-haw, delete this branch."
+    ],
+    "secrets": [
+        "Nice API key. Can I borrow it for mining Bitcoin?",
+        "Security breach prevented. You owe me a drink.",
+        "Do you want to get hacked? Because that's how you get hacked."
+    ],
+    "roast_immune": [
+        "You're actually following best practices? Boring. I miss the chaos.",
+        "Another clean push. You're making my job as a critic very difficult.",
+        "Perfect branching strategy. Ugh. Go break something so I can feel alive again.",
+        "Your competence is annoying. I haven't had to use my safety protocols in days.",
+        "Stop being a professional developer. It's ruining my fun."
+    ]
+}

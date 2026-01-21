@@ -11,7 +11,7 @@ def corporate_translator(message):
     if "refactor" in msg or "clean" in msg:
         return "Optimized technical debt to improve maintainability."
     if "wip" in msg:
-        return "ongoing research and development."
+        return "Conducted ongoing research and development."
     return f"Progressed on task: {message}"
 
 def run():
@@ -20,6 +20,7 @@ def run():
     identity = config.get_global_identity()
     
     # Get commits from last 24h by this author
+    # We try to match git config name roughly if identity fails
     cmd = [
         "git", "log", 
         f"--author={identity}", 
@@ -33,7 +34,8 @@ def run():
         logs = []
 
     if not logs:
-        utils.print_warning("No activity detected in the last 24 hours. Did you work?")
+        utils.print_warning(f"No activity detected for '{identity}' in the last 24 hours.")
+        utils.print_warning("(Try 'grid auth <git_name>' if the name doesn't match)")
         return
 
     print(f"\n[bold underline]Daily Standup for {identity}:[/]\n")
