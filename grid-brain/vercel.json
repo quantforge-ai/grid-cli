@@ -5,7 +5,7 @@
             "use": "@vercel/python"
         },
         {
-            "src": "index.html",
+            "src": "public/**/*",
             "use": "@vercel/static"
         }
     ],
@@ -15,8 +15,12 @@
             "dest": "api/index.py"
         },
         {
+            "src": "/(GridSetup.exe|install.sh)",
+            "dest": "/public/$1"
+        },
+        {
             "src": "/(.*)",
-            "dest": "/index.html"
+            "dest": "/public/index.html"
         }
     ]
 }
