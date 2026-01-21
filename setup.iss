@@ -43,15 +43,15 @@ Name: "{autoprograms}\Grid Terminal"; Filename: "{app}\{#MyAppExeName}"; IconFil
 ; Add to PATH environment variable
 Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}'))
 
-; Context menu: Right-click on folder
-Root: HKCR; Subkey: "Directory\shell\OpenGridHere"; ValueType: string; ValueName: ""; ValueData: "Open Grid Here ⚡"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "Directory\shell\OpenGridHere"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\icon.ico"
-Root: HKCR; Subkey: "Directory\shell\OpenGridHere\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%V"""
+; Context menu: Right-click on folder (using HKCU for non-admin install)
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\OpenGridHere"; ValueType: string; ValueName: ""; ValueData: "Open Grid Here ⚡"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\OpenGridHere"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\icon.ico"
+Root: HKCU; Subkey: "Software\Classes\Directory\shell\OpenGridHere\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%V"""
 
 ; Context menu: Right-click on folder background (inside folder)
-Root: HKCR; Subkey: "Directory\Background\shell\OpenGridHere"; ValueType: string; ValueName: ""; ValueData: "Open Grid Here ⚡"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "Directory\Background\shell\OpenGridHere"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\icon.ico"
-Root: HKCR; Subkey: "Directory\Background\shell\OpenGridHere\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%V"""
+Root: HKCU; Subkey: "Software\Classes\Directory\Background\shell\OpenGridHere"; ValueType: string; ValueName: ""; ValueData: "Open Grid Here ⚡"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Directory\Background\shell\OpenGridHere"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\icon.ico"
+Root: HKCU; Subkey: "Software\Classes\Directory\Background\shell\OpenGridHere\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%V"""
 
 [Code]
 function NeedsAddPath(Param: string): boolean;

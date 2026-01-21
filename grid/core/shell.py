@@ -3,9 +3,10 @@ import subprocess
 import shlex
 import sys
 import ctypes
+import socket
 from rich.console import Console
 from rich.prompt import Prompt
-from grid.core import style
+from grid.core import style, config
 
 console = Console()
 
@@ -19,13 +20,13 @@ def set_window_title(title):
 def launch():
     """
     The Main Event Loop.
-    This makes 'grid.exe' behave like 'bash.exe' or 'cmd.exe'.
+    Mimics Git Bash prompt style: user@host GRID ~/path $
     """
     # 1. Initialize the Environment
     set_window_title("Grid Terminal // Neural Link Active")
-    os.system('cls' if os.name == 'nt' else 'clear') # Start fresh
+    os.system('cls' if os.name == 'nt' else 'clear') 
     
-    # 2. Run the Boot Sequence (The "Movie" effect)
+    # 2. Run the Boot Sequence (The "Package Loader" animation)
     style.boot_sequence()
     style.print_header()
     style.print_dashboard()
@@ -35,21 +36,48 @@ def launch():
     # 3. The Infinite Shell Loop
     while True:
         try:
-            # --- THE PROMPT ---
-            # Get current directory and shorten it if it's too long
+            # --- CONSTRUCT THE PROMPT ---
+            
+            # A. Get Identity (User)
+            # If they haven't run 'grid auth' yet, default to system name or "Stranger"
+            grid_user = config.get_global_identity()
+            if grid_user == "Stranger":
+                # Fallback to computer username if Grid auth isn't set
+                try:
+                    grid_user = os.getlogin().lower()
+                except:
+                    grid_user = "user"
+
+            # B. Get Hostname (Computer Name)
+            try:
+                hostname = socket.gethostname().lower()
+            except:
+                hostname = "localhost"
+
+            # C. Get Current Directory (Path)
             cwd = os.getcwd()
             home = os.path.expanduser("~")
             if cwd.startswith(home):
-                cwd = "~" + cwd[len(home):] # Replace C:\Users\Tanishq with ~
+                cwd = "~" + cwd[len(home):].replace("\\", "/") # Windows fix
+            else:
+                cwd = cwd.replace("\\", "/")
             
-            # The actual prompt line: "   ~/projects/grid-cli $ "
-            user_input = Prompt.ask(f"[bold cyan]{cwd}[/] [bold green]$[/]")
+            # D. Build the Git-Bash style string
+            # Format: user@host (Green) GRID (Magenta) path (Yellow) $
+            prompt_str = (
+                f"[bold green]{grid_user}@{hostname}[/] "
+                f"[bold magenta]GRID[/] "
+                f"[bold yellow]{cwd}[/] "
+                f"[bold white]$[/] "
+            )
+
+            # --- ASK FOR INPUT ---
+            user_input = Prompt.ask(prompt_str)
             
             if not user_input.strip():
                 continue
 
             # Parse command
-            # shlex.split handles quotes correctly: git commit -m "my message"
             try:
                 parts = shlex.split(user_input)
             except ValueError:
@@ -58,7 +86,7 @@ def launch():
 
             cmd = parts[0].lower()
 
-            # --- BUILT-IN SHELL COMMANDS ---
+            # --- BUILT-IN COMMANDS ---
             if cmd == "exit" or cmd == "quit":
                 console.print("[bold red]>> Terminating Neural Link...[/]")
                 break
@@ -69,7 +97,6 @@ def launch():
                 continue
             
             elif cmd == "cd":
-                # Python needs to handle CD manually to persist state
                 try:
                     target = parts[1] if len(parts) > 1 else home
                     os.chdir(target)
@@ -79,26 +106,21 @@ def launch():
                     console.print(f"[red]Error: {e}[/]")
                 continue
 
-            # --- GRID COMMAND SHORTCUTS ---
-            # Allows typing 'push' instead of 'grid push' inside this specific terminal
+            # --- GRID SHORTCUTS ---
             grid_keywords = [
                 "auth", "init", "dev", "status", "branch", "push", "home", 
                 "purge", "roast", "rank", "blame", "docker", "tree", "recap"
             ]
             
             if cmd in grid_keywords:
-                # We re-run the grid command as a subprocess
-                # This ensures it uses the same logic as the CLI
+                # Pass through to the installed grid command
                 subprocess.run(["grid"] + parts, shell=True)
             
-            # --- SYSTEM COMMAND PASSTHROUGH ---
-            # Passes 'git status', 'npm start', 'dir' to the underlying OS
+            # --- SYSTEM COMMANDS ---
             else:
-                # shell=True allows using pipes (|) and system aliases
                 subprocess.run(user_input, shell=True)
 
         except KeyboardInterrupt:
-            # Handle Ctrl+C gracefully (don't crash the shell, just clear line)
             console.print("^C")
             continue
         except Exception as e:
