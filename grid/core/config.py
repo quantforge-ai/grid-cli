@@ -1,57 +1,49 @@
-"""
-Grid CLI - config.grid Parser
-"""
+import requests
+import subprocess
+from grid.core import utils
 
-import os
-import yaml
-from pathlib import Path
-from rich.console import Console
-from grid.core.personality import engine as persona
+# REPLACE THIS WITH YOUR ACTUAL VERCEL URL
+BRAIN_URL = "https://grid-brain.vercel.app/api" 
 
-console = Console()
-
-def load_config():
-    """Load and parse config.grid from CWD."""
-    config_path = Path(os.getcwd()) / "config.grid"
-    if not config_path.exists():
-        return None
-    
+def get_git_remote():
+    """Extracts the unique GitHub URL to use as Project ID."""
     try:
-        with open(config_path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
-    except Exception as e:
-        console.print(f"[red]❌ Neural Link Corruption: {e}[/red]")
+        url = subprocess.check_output(["git", "remote", "get-url", "origin"], stderr=subprocess.DEVNULL).decode().strip()
+        # Clean URL: git@github.com:User/Repo.git -> https://github.com/User/Repo
+        if url.startswith("git@"):
+            url = url.replace(":", "/").replace("git@", "https://")
+        if url.endswith(".git"):
+            url = url[:-4]
+        return url
+    except:
         return None
 
-def create_template():
-    """Create a default config.grid template."""
-    target_file = Path(os.getcwd()) / "config.grid"
-    if target_file.exists():
-        console.print("[yellow]⚠️  Directory already assimilated.[/yellow]")
-        return
+def register_project(config_data):
+    """Lead: Pushes .grid config to Cloud Brain."""
+    repo_url = get_git_remote()
+    if not repo_url:
+        utils.print_error("Not a git repo. Cannot generate Project ID.")
+        return False
+
+    payload = {
+        "project_id": repo_url, 
+        "config": config_data
+    }
     
-    template = """# ⚡ GRID PROTOCOL v1.0
-project:
-  name: "{name}"
-  type: "python"
-
-firewall:
-  block:
-    - ".env"
-    - "secrets.json"
-    - "*.key"
-
-commands:
-  setup: "pip install -e ."
-  train: "python -m quantgrid.ml.trainer"
-  push: "python -m quantgrid.hub.submit"
-  status: "python -m quantgrid.hub.status"
-  test: "pytest"
-"""
-    name = os.path.basename(os.getcwd())
     try:
-        with open(target_file, 'w', encoding="utf-8") as f:
-            f.write(template.format(name=name))
-        console.print(f"[green]✅ {persona.generate('success', 'repo assimilated')}[/green]")
+        # In a real scenario, you'd want some auth header here too
+        resp = requests.post(f"{BRAIN_URL}/register", json=payload, timeout=5)
+        return resp.status_code == 200
     except Exception as e:
-        console.print(f"[red]❌ Failed to assimilate: {e}[/red]")
+        utils.print_error(f"Cloud Connection Failed: {e}")
+        return False
+
+def fetch_project_config(repo_url):
+    """Dev: Downloads config using Repo URL as key."""
+    try:
+        resp = requests.get(f"{BRAIN_URL}/connect", params={"project_id": repo_url}, timeout=5)
+        if resp.status_code == 200:
+            return resp.json()
+        return None
+    except:
+        return None

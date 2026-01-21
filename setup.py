@@ -1,25 +1,21 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="grid-cli",
-    version="1.0.0",
-    author="QuantGrid Team",
-    description="The Universal Interface for Financial Intelligence",
+    name='grid-cli',
+    version='1.0.0',
     packages=find_packages(),
+    include_package_data=True,
     install_requires=[
-        "click",
-        "rich",
-        "prompt_toolkit",
-        "requests",
-        "pyyaml",
-        "loguru",
-        "psutil",
-        "huggingface_hub"
+        'click',
+        'rich',
+        'requests',
+        'praw',
+        # 'tree-sitter', # Uncomment if/when you use C++ support
     ],
     entry_points={
-        "console_scripts": [
-            "grid=grid.main:main",
+        'console_scripts': [
+            # TARGET: module 'grid.main', function 'run_cli'
+            'grid = grid.main:main',  
         ],
     },
-    python_requires=">=3.9",
 )

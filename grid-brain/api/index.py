@@ -1,92 +1,61 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI, HTTPException, Request
+from pydantic import BaseModel
+import requests
 import os
-import random
-from huggingface_hub import InferenceClient
 
-app = Flask(__name__)
-CORS(app)
+app = FastAPI()
 
-# 1. Setup the Official Client
-# It automatically handles the URL routing and authentication headers.
-HF_TOKEN = os.environ.get("HF_TOKEN")
-client = InferenceClient(token=HF_TOKEN)
+# Vercel automatically injects these
+KV_URL = os.environ.get("KV_REST_API_URL")
+KV_TOKEN = os.environ.get("KV_REST_API_TOKEN")
 
-@app.route('/v1/health', methods=['GET'])
-def health():
-    return jsonify({
-        "status": "neural_link_active", 
-        "version": "1.0.0",
-        "engine": "huggingface_hub.InferenceClient"
-    })
+class ProjectConfig(BaseModel):
+    project_id: str
+    config: dict
 
-@app.route('/v1/personality', methods=['GET'])
-def get_personality():
-    category = request.args.get('type', 'neutral')
+@app.get("/")
+def home():
+    return {"status": "Grid Brain Online", "mode": "Vercel KV (Redis)"}
+
+@app.post("/api/register")
+def register_project(data: ProjectConfig):
+    """Lead: Saves config to Redis (Key = Project ID, Value = Config JSON)"""
+    if not KV_URL:
+        raise HTTPException(500, "Brain Damage: KV_URL missing")
+
+    # Redis command: SET project_id json_string
+    # We use the raw REST endpoint provided by Vercel/Upstash
+    headers = {"Authorization": f"Bearer {KV_TOKEN}"}
+    response = requests.post(
+        f"{KV_URL}/set/{data.project_id}", 
+        json=data.config,
+        headers=headers
+    )
     
-    # NICE GREETINGS (For Boot)
-    if category == "boot":
-        lines = [
-            "Neural Link Established. Systems Green.",
-            "Welcome back, User. The Grid is waiting.",
-            "Personality Core: Online. Sarcasm: 100%.",
-            "Hardware detected. Assimilation complete.",
-            "Grid Terminal v1.0 ready for input."
-        ]
-    # MEAN INSULTS (For Roast)
-    elif category == "roast":
-        lines = [
-            "I've seen cleaner code in a spaghetti factory.",
-            "My neural pathways hurt just looking at this.",
-            "Are we deploying bugs today? Excellent.",
-            "Delete this before anyone sees it.",
-            "Optimizing for job security, I see."
-        ]
-    # NEUTRAL (For idle)
-    else: 
-        lines = ["Waiting for command...", "Processing...", "I'm bored.", "System stable."]
+    if response.status_code == 200:
+        return {"msg": "Project Assimilated."}
+    else:
+        raise HTTPException(500, f"Memory Write Error: {response.text}")
 
-    random.shuffle(lines)
-    return jsonify({"lines": lines})
+@app.get("/api/connect")
+def connect_project(project_id: str):
+    """Dev: Gets config from Redis"""
+    if not KV_URL:
+        raise HTTPException(500, "Brain Damage: KV_URL missing")
 
-@app.route('/v1/roast', methods=['POST'])
-def roast():
-    data = request.json
-    code_snippet = data.get('code', '')
-
-    if not HF_TOKEN:
-        return jsonify({"error": "Brain Lobotomized (Missing HF_TOKEN)"}), 500
-
-    try:
-        # The PROMPT optimized for the official client
-        prompt = f"""<|system|>
-You are a cynical senior software engineer. 
-Analyze the user's code. Find one specific flaw. 
-Insult the user's intelligence based on that flaw. 
-Be short, witty, and brutal.</s>
-<|user|>
-Code:
-{code_snippet}</s>
-<|assistant|>"""
-
-        # The Official Call (No manual URLs or headers needed)
-        response = client.text_generation(
-            prompt,
-            model="mistralai/Mistral-7B-Instruct-v0.2",
-            max_new_tokens=100,
-            temperature=0.8,
-            stop_sequences=["</s>"]
-        )
-        
-        # Clean up the response (remove the prompt if it leaks, though client usually doesn't)
-        roast_text = response.strip()
-        
-        # Return in the format the CLI expects (List of dicts)
-        return jsonify([{"generated_text": roast_text}])
-
-    except Exception as e:
-        # Error diagnostics are automatically better with the library
-        return jsonify({"error": f"HF Client Error: {str(e)}"}), 500
-
-# Required for Vercel
-app = app
+    headers = {"Authorization": f"Bearer {KV_TOKEN}"}
+    response = requests.get(
+        f"{KV_URL}/get/{project_id}",
+        headers=headers
+    )
+    
+    data = response.json()
+    # Redis REST API returns {"result": "string_value"} or {"result": null}
+    
+    if data.get("result"):
+        # The result comes back as a stringified JSON if we aren't careful, 
+        # but usually Vercel KV handles JSON nicely if stored as such. 
+        # If it returns a string, the client CLI will parse it.
+        return data["result"]
+    else:
+        raise HTTPException(404, "Project identity not found in memory.")
