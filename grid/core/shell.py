@@ -29,7 +29,6 @@ def launch():
     # 2. Run the Boot Sequence (The "Package Loader" animation)
     style.boot_sequence()
     style.print_header()
-    style.print_dashboard()
     
     console.print("\n[bold green]>> NEURAL LINK ESTABLISHED.[/] [dim](Ready for input)[/]\n")
 
