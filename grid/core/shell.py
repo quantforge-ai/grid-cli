@@ -21,7 +21,7 @@ def get_short_path(cwd):
     """
     Smartly shortens the path for the prompt.
     Full: C:/Users/Tanishq/AppData/Local/Programs/Grid CLI
-    Short: ~/.../Programs/Grid CLI
+    Short: ~/.../Grid CLI
     """
     home = os.path.expanduser("~")
     
@@ -35,11 +35,12 @@ def get_short_path(cwd):
     path = path.replace("\\", "/")
 
     # 3. Truncate if too long (Visual noise reduction)
-    if len(path) > 35:
+    # More aggressive shortening - show only last directory
+    if len(path) > 25:
         parts = path.split("/")
-        # Keep the first part (usually ~ or Drive letter) and the last 2 parts
-        if len(parts) > 3:
-            return f"{parts[0]}/.../{parts[-2]}/{parts[-1]}"
+        # Keep the first part (~ or Drive) and only the LAST part
+        if len(parts) > 2:
+            return f"{parts[0]}/.../{parts[-1]}"
     
     return path
 
