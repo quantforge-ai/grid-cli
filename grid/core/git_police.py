@@ -24,22 +24,19 @@ def get_current_branch():
         return None
 
 def get_git_user():
-    """Fetches the configured git username."""
+    """Fetches the git username (e.g., 'tanishq')"""
     try:
         name = subprocess.check_output(
             ["git", "config", "user.name"], 
             stderr=subprocess.DEVNULL
         ).decode().strip()
-        # Sanitize: "Tanishq Dasari" -> "tanishq"
         return name.split(" ")[0].lower() if name else "stranger"
     except:
         return "stranger"
 
 def slugify(text):
-    """Turns 'Fixing the Auth Bug!!' into 'fixing-the-auth-bug'."""
-    # Remove special chars, keep spaces/alphanumeric
+    """Turns 'Fixing the Auth!!' into 'fixing-the-auth'."""
     clean = "".join(c if c.isalnum() or c.isspace() else "" for c in text).strip()
-    # Join with dashes and limit to 4 words
     return "-".join(clean.split()[:4]).lower()
 
 def is_clean():
@@ -53,11 +50,15 @@ def is_clean():
     except:
         return False
 
-def scan_for_secrets():
+def scan_for_secrets(custom_patterns=None):
     """
     Scans STAGED files for secrets. 
+    Accepts custom banned filenames from .grid config.
     Returns a list of file paths that contain secrets.
     """
+    # Merge default sensitive files with project-specific bans
+    banned_files = SENSITIVE_FILES + (custom_patterns or [])
+    
     try:
         files = subprocess.check_output(
             ["git", "diff", "--name-only", "--cached"],
@@ -69,10 +70,12 @@ def scan_for_secrets():
     leaking_files = []
 
     for file_path in files:
-        if any(file_path.endswith(s) for s in SENSITIVE_FILES):
+        # Check against banned filenames (e.g. .env, secrets.json)
+        if any(file_path.endswith(s) for s in banned_files):
             leaking_files.append(file_path)
             continue
         
+        # Check file content for regex patterns (API keys)
         try:
             content = subprocess.check_output(
                 ["git", "show", f":{file_path}"],
@@ -88,20 +91,42 @@ def scan_for_secrets():
 
     return leaking_files
 
-def cowboy_check(message=""):
+# --- CONTEXT AWARENESS LOGIC ---
+def detect_context_switch(message):
     """
-    Returns (is_risk, suggestion)
-    Constructs a sassy branch name based on the commit message and user.
+    Decides if we should start a FRESH branch from main.
+    Returns: (should_switch, new_branch_name)
     """
-    branch = get_current_branch()
+    current = get_current_branch()
+    slug = slugify(message)
+    user = get_git_user()
     
-    if branch in PROTECTED_BRANCHES:
-        user = get_git_user()
-        slug = slugify(message) if message else f"patch-{int(time.time())}"
-        
-        # New Format: cowboy/topic/who-saved
-        # Example: cowboy/initial-commit/tanishq-saved
-        safe_name = f"cowboy/{slug}/{user}-saved"
-        return True, safe_name
-        
+    # Format: cowboy/topic/user
+    new_branch_name = f"cowboy/{slug}/{user}"
+
+    # CASE 1: On Main/Master (The original Cowboy check)
+    if current in PROTECTED_BRANCHES:
+        return True, new_branch_name
+
+    # CASE 2: Already on a Cowboy Branch?
+    if current.startswith("cowboy/"):
+        try:
+            # Current: cowboy/auth-fix/tanishq
+            # Message: "adding stripe payment" -> slug: "adding-stripe-payment"
+            
+            parts = current.split('/')
+            if len(parts) > 1:
+                old_topic = parts[1] # "auth-fix"
+                
+                # Tokenize to check for overlap
+                old_tokens = set(old_topic.split('-'))
+                new_tokens = set(slug.split('-'))
+                
+                # If they share NO words, it's a context switch
+                # (e.g. "auth" vs "payment" = No match)
+                if not old_tokens.intersection(new_tokens):
+                    return True, new_branch_name
+        except:
+            pass 
+
     return False, None

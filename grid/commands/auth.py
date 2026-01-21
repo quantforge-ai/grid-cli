@@ -1,16 +1,11 @@
 import click
-import os
-import json
+from grid.core import utils, config
 
-CONFIG_PATH = os.path.expanduser("~/.grid_config")
-
-def save_key(key):
-    with open(CONFIG_PATH, 'w') as f:
-        json.dump({"api_key": key}, f)
-
-def login():
-    """Authenticate with the Neural Cloud."""
-    click.echo(">> Authenticating with Grid Hive Mind...")
-    key = click.prompt("Enter your API Key (Groq/Gemini)", hide_input=True)
-    save_key(key)
-    click.echo(">> Neural Link Established.")
+def run(name):
+    utils.print_header("IDENTITY CONFIGURATION")
+    
+    # Save to ~/.grid_identity
+    config.set_global_identity(name)
+    
+    utils.print_success(f"Identity updated to: [bold cyan]{name}[/]")
+    utils.print_warning("This name will be used for Multiplayer Roasts and Cowboy commits.")
