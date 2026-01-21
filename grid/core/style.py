@@ -79,7 +79,6 @@ def print_dashboard():
     """The Command Menu - Simple list, hacker theme."""
     console.print()
     console.print(Text("  ⚡ AVAILABLE PROTOCOLS", style="bold cyan"))
-    console.print(Text("  " + "━" * 60, style="dim green"))
     console.print()
     
     # Simple commands list - green theme
@@ -94,6 +93,4 @@ def print_dashboard():
     for cmd, desc in commands:
         console.print(f"    [bold green]{cmd:<15}[/] [dim white]{desc}[/]")
     
-    console.print()
-    console.print(Text("  " + "━" * 60, style="dim green"))
     console.print()
