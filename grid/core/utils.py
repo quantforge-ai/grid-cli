@@ -10,6 +10,9 @@ def print_header(text):
 def print_success(text):
     console.print(f"[bold green]✔️ {text}[/]")
 
+def print_info(text):
+    console.print(f"[bold blue]ℹ️ {text}[/]")
+
 def print_error(text):
     console.print(f"[bold red]❌ {text}[/]")
 

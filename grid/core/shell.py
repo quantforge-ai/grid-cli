@@ -105,6 +105,13 @@ def launch():
                 console.print("[red]Error: Unclosed quote.[/]")
                 continue
 
+            # --- PARSE COMMAND ---
+            if parts[0].lower() == "grid":
+                if len(parts) > 1:
+                    parts = parts[1:] # Strip "grid" prefix
+                else:
+                    continue # Just "grid" typed, ignore
+
             cmd = parts[0].lower()
 
             # --- BUILT-IN COMMANDS ---
@@ -135,7 +142,8 @@ def launch():
             
             if cmd in grid_keywords:
                 # Pass through to the installed grid command
-                subprocess.run(["grid"] + parts, shell=True)
+                # Use sys.executable to ensure we use this exact binary/script
+                subprocess.run([sys.executable] + parts)
             
             # --- SYSTEM COMMANDS ---
             else:

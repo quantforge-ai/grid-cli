@@ -12,9 +12,11 @@ def load_project_config():
     """Loads the .grid file from the current directory."""
     if os.path.exists(PROJECT_CONFIG):
         try:
+            if os.path.getsize(PROJECT_CONFIG) == 0:
+                return None
             with open(PROJECT_CONFIG, "r") as f:
                 return json.load(f)
-        except:
+        except (json.JSONDecodeError, ValueError, Exception):
             return None
     return None
 
@@ -24,7 +26,7 @@ def save_project_config(data):
         json.dump(data, f, indent=4)
 
 def set_global_identity(name):
-    """Saves 'Tanishq' to ~/.grid_identity."""
+    """Saves identity to ~/.grid_identity."""
     try:
         with open(GLOBAL_ID_FILE, "w") as f:
             json.dump({"name": name}, f)
@@ -32,12 +34,14 @@ def set_global_identity(name):
         print(f"Warning: Could not save identity: {e}")
 
 def get_global_identity():
-    """Returns 'Tanishq' or 'Stranger'."""
+    """Returns the registered name or 'Stranger'."""
     if os.path.exists(GLOBAL_ID_FILE):
         try:
+            if os.path.getsize(GLOBAL_ID_FILE) == 0:
+                return "Stranger"
             with open(GLOBAL_ID_FILE, "r") as f:
                 data = json.load(f)
                 return data.get("name", "Stranger")
-        except:
-            pass
+        except (json.JSONDecodeError, ValueError, Exception):
+            return "Stranger"
     return "Stranger"
