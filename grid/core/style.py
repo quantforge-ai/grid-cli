@@ -88,14 +88,18 @@ def print_header():
     print()
 
 def print_dashboard():
-    """The Command Menu - Clean without borders."""
-    # Create a simple table without any box borders
-    table = Table(show_header=True, box=None, expand=False, padding=(0, 3), show_edge=False)
+    """The Command Menu - Simple text list without table."""
+    console.print()
+    console.print(Text("  ⚡ AVAILABLE PROTOCOLS", style="bold yellow"))
+    console.print(Text("  " + "─" * 60, style="dim cyan"))
+    console.print()
     
-    table.add_column("⚡ COMMAND", style="bold cyan", no_wrap=True)
-    table.add_column("DESCRIPTION", style="bold white")
+    # Simple text list with colors, no table
+    console.print(Text("    ⚡ ", style="bold yellow"), end="")
+    console.print(Text("COMMAND", style="bold cyan"), end="")
+    console.print(Text("          DESCRIPTION", style="bold white"))
     
-    rows = [
+    commands = [
         ("grid push", "[yellow]Safe Push / Cowboy Mode[/]"),
         ("grid roast", "[magenta]Audit Code Quality[/]"),
         ("grid rank", "[blue]View Leaderboard[/]"),
@@ -103,13 +107,9 @@ def print_dashboard():
         ("exit", "[red]Disconnect[/]")
     ]
     
-    for cmd, desc in rows:
-        table.add_row(cmd, desc)
+    for cmd, desc in commands:
+        console.print(f"    [bold cyan]{cmd:<15}[/] {desc}")
     
-    # Print header manually with custom styling
     console.print()
-    console.print(Text("  ⚡ AVAILABLE PROTOCOLS", style="bold yellow"))
-    console.print(Text("  " + "─" * 60, style="dim cyan"))
-    console.print(table)
     console.print(Text("  " + "─" * 60, style="dim cyan"))
     console.print()
