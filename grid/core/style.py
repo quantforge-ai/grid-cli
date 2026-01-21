@@ -11,105 +11,89 @@ from rich import box
 console = Console()
 
 def boot_sequence():
-    """Runs the package-style loading animation."""
+    """Runs the loading animation with hacker green theme."""
     console.clear()
     
-    # 1. Display Colorful ASCII Header
+    # Matrix-style green ASCII header
     console.print()
-    console.print(Align.center(Text("   ██████╗ ██████╗ ██╗██████╗     ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗     ", style="bold cyan")))
-    console.print(Align.center(Text("  ██╔════╝ ██╔══██╗██║██╔══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║     ", style="bold blue")))
-    console.print(Align.center(Text("  ██║  ███╗██████╔╝██║██║  ██║       ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║     ", style="bold magenta")))
-    console.print(Align.center(Text("  ██║   ██║██╔══██╗██║██║  ██║       ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║     ", style="bold red")))
-    console.print(Align.center(Text("  ╚██████╔╝██║  ██║██║██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗", style="bold yellow")))
+    console.print(Align.center(Text("   ██████╗ ██████╗ ██╗██████╗     ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗     ", style="bold green")))
+    console.print(Align.center(Text("  ██╔════╝ ██╔══██╗██║██╔══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║     ", style="bold green")))
+    console.print(Align.center(Text("  ██║  ███╗██████╔╝██║██║  ██║       ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║     ", style="bold green")))
+    console.print(Align.center(Text("  ██║   ██║██╔══██╗██║██║  ██║       ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║     ", style="bold green")))
+    console.print(Align.center(Text("  ╚██████╔╝██║  ██║██║██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗", style="bold green")))
     console.print(Align.center(Text("   ╚═════╝ ╚═╝  ╚═╝╚═╝╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝", style="bold green")))
     console.print()
-    console.print(Align.center(Text("⚡ NEURAL LINK INITIALIZATION ⚡", style="bold yellow")))
-    console.print(Align.center(Text("v1.0.0", style="dim cyan")))
+    console.print(Align.center(Text("⚡ NEURAL LINK INITIALIZATION ⚡", style="bold cyan")))
+    console.print(Align.center(Text("v1.0.0", style="dim green")))
     print()
 
-    # 2. The Loading Bar with colorful steps
+    # Loading bar - all green theme
     steps = [
-        ("Resolving dependencies...", "cyan"),
-        ("Loading neural_core.pkg...", "blue"),
-        ("Mounting git_filesystem...", "magenta"),
-        ("Injecting sarcasm_module.dll...", "yellow"),
-        ("Establishing uplink...", "green")
+        "Resolving dependencies...",
+        "Loading neural_core.pkg...",
+        "Mounting git_filesystem...",
+        "Injecting sarcasm_module.dll...",
+        "Establishing uplink..."
     ]
 
     with Progress(
-        SpinnerColumn(spinner_name="dots12", style="bold magenta"),
-        TextColumn("[bold white]{task.description}"),
-        BarColumn(bar_width=40, style="yellow", complete_style="bold cyan"),
+        SpinnerColumn(spinner_name="dots12", style="bold green"),
+        TextColumn("[bold green]{task.description}"),
+        BarColumn(bar_width=40, style="green", complete_style="bold cyan"),
         TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
         console=console,
         transient=True
     ) as progress:
         
-        main_task = progress.add_task("[white]System Boot", total=100)
+        main_task = progress.add_task("[green]System Boot", total=100)
         
         for i in range(100):
             sleep_time = 0.02 if i < 80 else 0.005
             time.sleep(sleep_time)
             
             step_index = min(len(steps)-1, int(i / 20))
-            desc, color = steps[step_index]
-            progress.update(main_task, advance=1, description=f"[{color}]{desc}[/{color}]")
+            progress.update(main_task, advance=1, description=f"[green]{steps[step_index]}[/green]")
 
-    # 3. Final Flash
+    # Final Flash
     console.print(Align.center(Text(">> SYSTEM READY <<", style="bold green")))
     console.print(Align.center(Text("━" * 50, style="cyan")))
     time.sleep(0.5)
     console.clear()
 
 def print_header():
-    """The Persistent Header with vibrant colors."""
+    """The Persistent Header - all green hacker theme."""
     console.print()
-    console.print(Text("   ██████╗ ██████╗ ██╗██████╗ ", style="bold cyan"), end="")
-    console.print(Text("    ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗     ", style="bold magenta"))
-    
-    console.print(Text("  ██╔════╝ ██╔══██╗██║██╔══██╗", style="bold cyan"), end="")
-    console.print(Text("    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║     ", style="bold magenta"))
-    
-    console.print(Text("  ██║  ███╗██████╔╝██║██║  ██║", style="bold cyan"), end="")
-    console.print(Text("       ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║     ", style="bold magenta"))
-    
-    console.print(Text("  ██║   ██║██╔══██╗██║██║  ██║", style="bold cyan"), end="")
-    console.print(Text("       ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║     ", style="bold magenta"))
-    
-    console.print(Text("  ╚██████╔╝██║  ██║██║██████╔╝", style="bold cyan"), end="")
-    console.print(Text("       ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗", style="bold magenta"))
-    
-    console.print(Text("   ╚═════╝ ╚═╝  ╚═╝╚═╝╚═════╝ ", style="bold cyan"), end="")
-    console.print(Text("       ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝", style="bold magenta"))
+    console.print(Text("   ██████╗ ██████╗ ██╗██████╗     ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗     ", style="bold green"))
+    console.print(Text("  ██╔════╝ ██╔══██╗██║██╔══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║     ", style="bold green"))
+    console.print(Text("  ██║  ███╗██████╔╝██║██║  ██║       ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║     ", style="bold green"))
+    console.print(Text("  ██║   ██║██╔══██╗██║██║  ██║       ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║     ", style="bold green"))
+    console.print(Text("  ╚██████╔╝██║  ██║██║██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗", style="bold green"))
+    console.print(Text("   ╚═════╝ ╚═╝  ╚═╝╚═╝╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝", style="bold green"))
     
     console.print()
-    console.print(Text("        The Sentient Developer Companion", style="italic yellow"), justify="center")
-    console.print(Text("        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", style="dim cyan"), justify="center")
+    console.print(Text("        The Sentient Developer Companion", style="dim cyan"))
+    console.print(Text("        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", style="dim green"))
     print()
 
 def print_dashboard():
-    """The Command Menu - Simple text list without table."""
+    """The Command Menu - Simple list, hacker theme."""
     console.print()
-    console.print(Text("  ⚡ AVAILABLE PROTOCOLS", style="bold yellow"))
-    console.print(Text("  " + "─" * 60, style="dim cyan"))
+    console.print(Text("  ⚡ AVAILABLE PROTOCOLS", style="bold cyan"))
+    console.print(Text("  " + "━" * 60, style="dim green"))
     console.print()
     
-    # Simple text list with colors, no table
-    console.print(Text("    ⚡ ", style="bold yellow"), end="")
-    console.print(Text("COMMAND", style="bold cyan"), end="")
-    console.print(Text("          DESCRIPTION", style="bold white"))
-    
+    # Simple commands list - green theme
     commands = [
-        ("grid push", "[yellow]Safe Push / Cowboy Mode[/]"),
-        ("grid roast", "[magenta]Audit Code Quality[/]"),
-        ("grid rank", "[blue]View Leaderboard[/]"),
-        ("grid status", "[green]System Diagnostics[/]"),
-        ("exit", "[red]Disconnect[/]")
+        ("grid push", "Safe Push / Cowboy Mode"),
+        ("grid roast", "Audit Code Quality"),
+        ("grid rank", "View Leaderboard"),
+        ("grid status", "System Diagnostics"),
+        ("exit", "Disconnect")
     ]
     
     for cmd, desc in commands:
-        console.print(f"    [bold cyan]{cmd:<15}[/] {desc}")
+        console.print(f"    [bold green]{cmd:<15}[/] [dim white]{desc}[/]")
     
     console.print()
-    console.print(Text("  " + "─" * 60, style="dim cyan"))
+    console.print(Text("  " + "━" * 60, style="dim green"))
     console.print()
