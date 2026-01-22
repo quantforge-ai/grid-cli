@@ -51,7 +51,9 @@ def roast_project():
             continue
             
         for file in files:
-            if file.endswith(".py"):
+            # Polyglot God Mode (50+ Languages)
+            exts = list(analyzer.LANG_MAP.keys())
+            if any(file.endswith(ext) for ext in exts) or file in exts:
                 path = os.path.join(root, file)
                 
                 # Analyze individual file
@@ -124,13 +126,18 @@ def roast_developer(target_name, recent, share):
 
     # 3. Aggregate Score for Touched Files
     commit_scores = []
+    supported_exts = list(analyzer.LANG_MAP.keys())
     for f in touched_files:
-        if os.path.exists(f) and f.endswith(".py"):
-            try:
-                stats = analyzer.analyze_file(f)
-                commit_scores.append(stats['score'])
-            except:
-                continue
+        if os.path.exists(f):
+            ext = os.path.splitext(f)[1].lower()
+            if not ext: ext = os.path.basename(f)
+            
+            if ext in supported_exts:
+                try:
+                    stats = analyzer.analyze_file(f)
+                    commit_scores.append(stats['score'])
+                except:
+                    continue
     
     avg_score = sum(commit_scores) / len(commit_scores) if commit_scores else 0
     
