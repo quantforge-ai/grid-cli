@@ -20,13 +20,13 @@ def get_git_remote():
 
 def register_project(config_data):
     """Lead: Pushes .grid config to Cloud Brain."""
-    repo_url = get_git_remote()
-    if not repo_url:
-        utils.print_error("Not a git repo. Cannot generate Project ID.")
+    project_id = config_data.get("id")
+    if not project_id:
+        utils.print_error("Invalid config: missing project ID.")
         return False
 
     payload = {
-        "project_id": repo_url, 
+        "project_id": project_id, 
         "config": config_data
     }
     
@@ -43,10 +43,10 @@ def register_project(config_data):
         utils.print_error(f"Neural Glitch: {e}")
         return False
 
-def fetch_project_config(repo_url):
-    """Dev: Downloads config using Repo URL as key."""
+def fetch_project_config(project_id):
+    """Dev: Downloads config using Project ID as key."""
     try:
-        resp = requests.get(f"{BRAIN_URL}/connect", params={"project_id": repo_url}, timeout=10)
+        resp = requests.get(f"{BRAIN_URL}/connect", params={"project_id": project_id}, timeout=10)
         
         # Guard against HTML error pages or down server
         if resp.status_code != 200:

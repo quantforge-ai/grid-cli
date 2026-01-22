@@ -8,13 +8,14 @@ def run():
     identity = config.get_global_identity()
     
     # Check Cloud Connection (Safe)
-    repo_url = cloud.get_git_remote()
-    neural_link = "[bold green]ONLINE[/]" if repo_url and cloud.fetch_project_config(repo_url) else "[bold red]SEVERED[/] [dim](Offline Seed Active)[/]"
+    project_cfg = config.load_project_config()
+    project_id = project_cfg.get("id") if project_cfg else None
+    neural_link = "[bold green]ONLINE[/]" if project_id and cloud.fetch_project_config(project_id) else "[bold red]SEVERED[/] [dim](Offline Seed Active)[/]"
+    
     
     # 2. Target Assimilation
     branch = git_police.get_current_branch()
-    project_cfg = config.load_project_config()
-    project_name = project_cfg.get("name", "QuantGrid-Core") if project_cfg else "Unknown"
+    project_name = project_cfg.get("name", os.path.basename(os.getcwd())) if project_cfg else "Unknown"
     
     # Construct Sections
     sections = {
@@ -25,7 +26,7 @@ def run():
             "Personality": "[magenta]Stable[/]"
         },
         "TARGET ASSIMILATION": {
-            "Repository": os.path.basename(os.getcwd()) if not repo_url else os.path.basename(repo_url),
+            "Repository": project_name,
             "Current Branch": f"[magenta]{branch}[/]",
             "Grid Protocol": "✅ [bold green]ASSIMILATED[/]" if project_cfg else "[yellow]NOT ASSIMILATED[/] [dim](Run 'grid init')[/]"
         }

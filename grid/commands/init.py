@@ -1,33 +1,40 @@
-import click
+import os
+from datetime import datetime
 from grid.core import utils, config, cloud
 
 def run():
     utils.print_header("INITIALIZING GRID PROJECT")
     
-    repo_id = cloud.get_git_remote()
-    if not repo_id:
-        utils.print_error("This folder is not a git repository.")
+    # Check if .grid already exists
+    if os.path.exists(".grid"):
+        utils.print_error(".grid file already exists. Delete it first if you want to reinitialize.")
         return
-
-    project_name = click.prompt(">> Project Name", default=repo_id.split("/")[-1])
-    webhook = click.prompt(">> Team Webhook URL (Discord/Slack)")
     
-    click.echo(">> Enter filenames to BAN (comma separated). E.g. .env, secrets.json")
-    secrets = click.prompt(">> Banned Files", default=".env, .pem, credentials.json")
-    secret_list = [s.strip() for s in secrets.split(",")]
-
-    data = {
-        "id": repo_id,
+    # Generate unique project ID: QG/DDMMMYYYY/project-name
+    project_name = os.path.basename(os.getcwd())
+    date_stamp = datetime.now().strftime("%d%b%Y")  # e.g., 22Jan2026
+    project_id = f"QG/{date_stamp}/{project_name}"
+    
+    # Get GitHub URL from git remote
+    repo_url = cloud.get_git_remote() or ""
+    
+    # Create template .grid file
+    template = {
+        "id": project_id,
         "name": project_name,
-        "webhook": webhook,
-        "banned_files": secret_list
+        "repo_url": repo_url,
+        "webhook": "",  # Lead will fill this in manually
+        "banned_files": [".env", ".pem", "credentials.json"]
     }
-
-    config.save_project_config(data)
-    utils.print_success(f"Generated .grid file for '{project_name}'.")
     
-    if click.confirm("Do you want to push this config to the Cloud Brain now?"):
-        if cloud.register_project(data):
-            utils.print_success("Project registered in Cloud. Teammates can now use 'grid dev'.")
-        else:
-            utils.print_error("Cloud upload failed.")
+    config.save_project_config(template)
+    
+    utils.print_success(f"✨ Created .grid configuration file")
+    utils.print_info(f"Project ID: {project_id}")
+    if repo_url:
+        utils.print_info(f"Repository: {repo_url}")
+    utils.print_info("\n📝 Next steps:")
+    utils.print_info("   1. Open .grid and configure your project settings")
+    utils.print_info("   2. Add your team webhook URL (optional)")
+    utils.print_info("   3. Run 'grid push' to register with Cloud Brain")
+    utils.print_info("   4. Teammates can use 'grid dev' to sync config")

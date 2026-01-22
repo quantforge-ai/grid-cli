@@ -1,0 +1,8 @@
+{
+    "id": "https://github.com/quantforge-ai/grid-cli",
+    "name": "Grid-CLI",
+    "webhook": "https://discord.com/api/webhooks/1463736127578968197/lP2_lfo8XkcCC7VsISTuu_50QOm-_vaDJRk38Z_s4McwySDrvqHeUBwOhe1m04qTWTID",
+    "banned_files": [
+        ".env"
+    ]
+}
