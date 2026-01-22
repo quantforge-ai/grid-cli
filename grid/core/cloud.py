@@ -32,17 +32,29 @@ def register_project(config_data):
     
     try:
         resp = requests.post(f"{BRAIN_URL}/register", json=payload, timeout=10)
-        return resp.status_code == 200
+        # Handle non-200 or non-JSON responses
+        if resp.status_code != 200:
+            return False
+        return True
+    except (requests.exceptions.RequestException, ValueError):
+        utils.print_error("Brain Link Severed: Cloud is unresponsive.")
+        return False
     except Exception as e:
-        utils.print_error(f"Cloud Connection Failed: {e}")
+        utils.print_error(f"Neural Glitch: {e}")
         return False
 
 def fetch_project_config(repo_url):
     """Dev: Downloads config using Repo URL as key."""
     try:
         resp = requests.get(f"{BRAIN_URL}/connect", params={"project_id": repo_url}, timeout=10)
-        if resp.status_code == 200:
-            return resp.json()
+        
+        # Guard against HTML error pages or down server
+        if resp.status_code != 200:
+            return None
+            
+        return resp.json()
+    except (requests.exceptions.RequestException, ValueError):
+        # ValueError catches the "Expecting value..." JSON error
         return None
-    except:
+    except Exception:
         return None

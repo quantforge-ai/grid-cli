@@ -1,25 +1,34 @@
 from grid.core import utils, config, git_police, cloud
+import os
 
 def run():
     utils.print_header("GRID SYSTEM DIAGNOSTICS")
     
-    # Gather Info
+    # 1. Vital Signs
     identity = config.get_global_identity()
-    project_cfg = config.load_project_config()
-    repo_id = cloud.get_git_remote()
+    
+    # Check Cloud Connection (Safe)
+    repo_url = cloud.get_git_remote()
+    neural_link = "[bold green]ONLINE[/]" if repo_url and cloud.fetch_project_config(repo_url) else "[bold red]SEVERED[/] [dim](Offline Seed Active)[/]"
+    
+    # 2. Target Assimilation
     branch = git_police.get_current_branch()
+    project_cfg = config.load_project_config()
+    project_name = project_cfg.get("name", "QuantGrid-Core") if project_cfg else "Unknown"
     
-    # Determine Status
-    project_name = project_cfg.get("name", "Unknown (Run 'grid init')") if project_cfg else "No Config Found"
-    webhook_status = "[green]Active[/]" if project_cfg and project_cfg.get("webhook") else "[red]Inactive[/]"
-    
-    # Build Dashboard Dictionary
-    dashboard = {
-        "Agent Identity": identity,
-        "Project Name": project_name,
-        "Repo Connection": repo_id or "Not a git repo",
-        "Current Branch": branch,
-        "Cloud Uplink": webhook_status
+    # Construct Sections
+    sections = {
+        "VITAL SIGNS": {
+            "Identity": identity.lower(),
+            "Version": "v1.0.0",
+            "Neural Link": neural_link,
+            "Personality": "[magenta]Stable[/]"
+        },
+        "TARGET ASSIMILATION": {
+            "Repository": os.path.basename(os.getcwd()) if not repo_url else os.path.basename(repo_url),
+            "Current Branch": f"[magenta]{branch}[/]",
+            "Grid Protocol": "✅ [bold green]ASSIMILATED[/]"
+        }
     }
     
-    utils.print_dashboard(dashboard)
+    utils.print_dashboard("GRID DIAGNOSTICS", sections)

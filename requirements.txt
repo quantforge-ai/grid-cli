@@ -1,7 +1,9 @@
+fastapi
+uvicorn
+requests
+pydantic
+python-dotenv
+upstash-redis
 click
 rich
-requests
-praw
-tree-sitter
-tree-sitter-languages
-pyyaml
+gitpython

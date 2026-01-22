@@ -19,16 +19,19 @@ def print_error(text):
 def print_warning(text):
     console.print(f"[bold yellow]⚠️ {text}[/]")
 
-def print_dashboard(metrics):
+def print_dashboard(title, sections):
     """
-    Renders the 'grid status' table.
-    metrics = {"Branch": "main", "Neural Link": "Online"}
+    Renders a multi-section dashboard with headers.
+    sections = {"VITAL SIGNS": {"Identity": "tanis", ...}, ...}
     """
-    content = ""
-    for key, value in metrics.items():
-        content += f"[bold blue]{key}:[/] {value}\n"
+    console.print(f"\n[bold magenta]📊 {title}[/]")
     
-    console.print(Panel.fit(content.strip(), title="[bold magenta]GRID DIAGNOSTICS[/]", border_style="cyan"))
+    for section_name, metrics in sections.items():
+        content = ""
+        for key, value in metrics.items():
+            content += f"[bold blue]{key:<15}[/] {value}\n"
+        
+        console.print(Panel(content.strip(), title=f"[bold green] {section_name} [/]", border_style="cyan", padding=(0, 1)))
 
 def spin_action(text, func):
     """
