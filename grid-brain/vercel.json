@@ -1,11 +1,15 @@
 {
     "routes": [
         {
+            "src": "/api",
+            "dest": "api/index.py"
+        },
+        {
             "src": "/api/(.*)",
             "dest": "api/index.py"
         },
         {
-            "src": "/(GridSetup.exe|install.sh)",
+            "src": "/(.*\\.(exe|sh|dmg|AppImage))",
             "dest": "/public/$1"
         },
         {
