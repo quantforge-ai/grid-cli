@@ -27,7 +27,7 @@ def run():
         "TARGET ASSIMILATION": {
             "Repository": os.path.basename(os.getcwd()) if not repo_url else os.path.basename(repo_url),
             "Current Branch": f"[magenta]{branch}[/]",
-            "Grid Protocol": "✅ [bold green]ASSIMILATED[/]"
+            "Grid Protocol": "✅ [bold green]ASSIMILATED[/]" if project_cfg else "[yellow]NOT ASSIMILATED[/] [dim](Run 'grid init')[/]"
         }
     }
     
