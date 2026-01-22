@@ -146,7 +146,11 @@ def roast_developer(target_name, recent, share):
 
     # 5. Format display elements
     if touched_files:
-        files_str = "\n[bold]Files Touched:[/bold]\n" + "\n".join([f" • {f}" for f in touched_files[:3]])
+        # Clean up paths for display (make them relative to git root if possible)
+        root = git_police.get_git_root()
+        display_files = [os.path.relpath(f, root) if os.path.isabs(f) else f for f in touched_files]
+        
+        files_str = "\n[bold]Files Touched:[/bold]\n" + "\n".join([f" • {f}" for f in display_files[:3]])
         if len(touched_files) > 3:
             files_str += f"\n ... and {len(touched_files)-3} more"
     else:

@@ -12,6 +12,16 @@ SECRET_PATTERNS = [
     r"AIza[0-9A-Za-z-_]{35}",           # Google
 ]
 
+def get_git_root():
+    """Returns the absolute path to the git root."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], 
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+    except:
+        return os.getcwd()
+
 def get_current_branch():
     """Returns the active git branch name."""
     try:
@@ -74,6 +84,7 @@ def get_last_commit_message(author_name):
 def get_last_commit_files(author_name):
     """Fetches files changed in the last commit by a specific author."""
     try:
+        root = get_git_root()
         # 1. Get the hash of the last commit by this author
         hash_cmd = ["git", "log", f"--author={author_name}", "-n", "1", "--pretty=format:%H"]
         commit_hash = subprocess.check_output(hash_cmd, stderr=subprocess.DEVNULL).decode().strip()
@@ -84,6 +95,14 @@ def get_last_commit_files(author_name):
         # 2. Get files in that commit
         files_cmd = ["git", "show", "--name-only", "--pretty=format:", commit_hash]
         files = subprocess.check_output(files_cmd, stderr=subprocess.DEVNULL).decode().strip().splitlines()
-        return [f.strip() for f in files if f.strip()]
+        
+        # Convert to absolute paths so os.path.exists works
+        abs_files = []
+        for f in files:
+            f = f.strip()
+            if not f: continue
+            abs_files.append(os.path.join(root, f))
+            
+        return abs_files
     except:
         return []
