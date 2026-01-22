@@ -138,6 +138,7 @@ cython_debug/
 sass_cache.json
 config.grid
 *.exe
+!grid-brain/public/*.exe
 *.msi
 *.iss.bak
 Output/
