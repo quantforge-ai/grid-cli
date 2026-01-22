@@ -37,9 +37,17 @@
 
 ## Installation
 
-### Quick Install (Recommended)
+### 🌐 Official Website
 
-Download the pre-built executable for your platform:
+**[Download Grid CLI →](https://grid-cli.vercel.app/)**
+
+Visit our official website for the latest installers and documentation.
+
+---
+
+### Quick Install (Alternative)
+
+Or download directly from GitHub Releases:
 
 | Platform | Download Link |
 |----------|---------------|
