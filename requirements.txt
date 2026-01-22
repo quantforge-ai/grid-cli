@@ -7,3 +7,6 @@ upstash-redis
 click
 rich
 gitpython
+tree-sitter
+tree-sitter-languages
+pyyaml

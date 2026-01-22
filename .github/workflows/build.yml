@@ -30,7 +30,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.12'
 
     - name: Install Dependencies
       run: |
@@ -44,9 +44,7 @@ jobs:
 
     - name: Compile Windows Setup (Inno Setup)
       if: runner.os == 'Windows'
-      uses: isalvia/innosetup-compiler-action@v1
-      with:
-        filepath: setup.iss
+      run: iscc setup.iss
 
     - name: Rename Setup for Consistency (Windows)
       if: runner.os == 'Windows'

@@ -1,6 +1,6 @@
 ; Script generated for Grid CLI
 #define MyAppName "Grid CLI"
-#define MyAppVersion "1.0"
+#define MyAppVersion "1.0.0"
 #define MyAppPublisher "QuantForge AI"
 #define MyAppExeName "grid.exe"
 
