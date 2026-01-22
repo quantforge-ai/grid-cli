@@ -155,6 +155,12 @@ def update():
     """Checks for updates and upgrades Grid."""
     cmd_update.run()
 
+@main.command('cloud-sync')
+def cloud_sync():
+    """[Lead Only] Uploads .grid config to Cloud Brain for team sync."""
+    from grid.commands import cloud_sync as cmd_cloud_sync
+    cmd_cloud_sync.run()
+
 if __name__ == '__main__':
     import sys
     import os

@@ -142,3 +142,12 @@ config.grid
 *.msi
 *.iss.bak
 Output/
+.grid
+.grid_identity
+.env.*
+*.pem
+*.key
+*.p12
+credentials.json
+secrets.json
+config.json
