@@ -24,8 +24,8 @@ def roast_file(target):
 
     # 3. Print Report
     utils.print_panel(
-        f"[bold]Complexity Score:[/ {color}] {stats['score']}/10\n"
-        f"[bold]Verdict:[/ {color}] {verdict}",
+        f"[bold]Complexity Score:[/][{color}] {stats['score']}/10[/]\n"
+        f"[bold]Verdict:[/][{color}] {verdict}[/]",
         title=f"Roast Report: {target}"
     )
 

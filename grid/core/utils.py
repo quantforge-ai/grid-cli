@@ -40,3 +40,7 @@ def spin_action(text, func):
     with console.status(f"[bold green]{text}...[/]", spinner="dots"):
         return func()
 
+def print_panel(content, title=None, style="cyan"):
+    """Prints content inside a stylized box."""
+    console.print(Panel(content, title=title, border_style=style, padding=(1, 2)))
+

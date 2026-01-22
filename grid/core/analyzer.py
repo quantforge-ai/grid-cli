@@ -10,37 +10,21 @@ except ImportError:
     TREE_SITTER_READY = False
 
 # --- THE DIAGNOSIS ENGINE ---
-def diagnose(stats):
+def calculate_score(stats):
     """
-    Takes raw code metrics and returns a roasting verdict.
+    Calculates a complexity score from 1-10.
+    10 is perfect, 1 is total garbage.
     """
-    verdicts = []
-
-    # 1. Complexity Roast
-    if stats.get("max_nesting", 0) > 4:
-        verdicts.append("Your nesting is 5 levels deep. You are mining for Bitcoins, not logic.")
+    score = 10
     
-    # 2. Length Roast
-    if stats.get("long_functions", 0) > 0:
-        verdicts.append("You have functions longer than a CVS receipt. Break them down.")
-
-    # 3. Argument Roast
-    if stats.get("max_args", 0) > 5:
-        verdicts.append("One function takes 6+ arguments. Just pass an object, you monster.")
-
-    # 4. Global Roast
-    if stats.get("globals", 0) > 2:
-        verdicts.append("Global variables? What is this, 1999?")
-
-    # 5. Bad Practice Roast (Print statements)
-    if stats.get("print_statements", 0) > 0:
-        verdicts.append("Leftover print statements? Use a debugger.")
-
-    # If code is actually clean
-    if not verdicts:
-        return "Code structure appears... adequate. I'm watching you."
+    # Penalties
+    score -= stats.get("max_nesting", 0) * 1
+    score -= stats.get("long_functions", 0) * 2
+    score -= (stats.get("max_args", 0) - 3) * 1 if stats.get("max_args", 0) > 3 else 0
+    score -= stats.get("globals", 0) * 2
+    score -= stats.get("print_statements", 0) * 0.5
     
-    return random.choice(verdicts)
+    return max(1, min(10, int(score)))
 
 # --- PYTHON ANALYZER (Built-in AST) ---
 class PythonSentinel(ast.NodeVisitor):
@@ -86,9 +70,17 @@ def analyze_python(file_path):
         
         sentinel = PythonSentinel()
         sentinel.visit(tree)
-        return diagnose(sentinel.stats)
+        
+        score = calculate_score(sentinel.stats)
+        return {
+            "score": score,
+            "metrics": sentinel.stats
+        }
     except Exception as e:
-        return f"Syntax Error: {str(e)}. Fix your code before I roast it."
+        return {
+            "score": 1,
+            "error": str(e)
+        }
 
 # --- C++ ANALYZER (Tree-sitter Placeholder) ---
 def analyze_cpp(file_path):
@@ -99,20 +91,20 @@ def analyze_cpp(file_path):
     return "C++ Analysis: Structurally valid, but manually managing memory is risky."
 
 # --- MAIN ENTRY POINT ---
-def scan_file(file_path):
+def analyze_file(file_path):
     """
     Determines language and runs the appropriate sentinel.
     """
     if not os.path.exists(file_path):
-        return "Ghost File: Target does not exist."
+        return {"score": 0, "error": "File not found"}
 
     ext = os.path.splitext(file_path)[1]
 
     if ext == ".py":
         return analyze_python(file_path)
     elif ext in [".cpp", ".c", ".h", ".hpp"]:
-        return analyze_cpp(file_path)
-    elif ext in [".js", ".ts", ".jsx"]:
-        return "JavaScript detected. I assume it's broken by default."
+        # Placeholder for C++
+        return {"score": 7, "info": "C++ analysis limited"}
     else:
-        return "Unknown language. I can't roast what I can't read."
+        # Default for unknown
+        return {"score": 5, "info": "Language not supported for full analysis"}
