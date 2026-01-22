@@ -1,5 +1,6 @@
 import subprocess
 import re
+import os
 
 # Default Banned Files
 SENSITIVE_FILES = [".env", ".pem", ".key", "id_rsa", "credentials.json", ".grid"]
@@ -74,35 +75,54 @@ def scan_for_secrets(custom_patterns=None):
 
 def get_last_commit_message(author_name):
     """Fetches the last commit message for a specific author."""
-    try:
-        cmd = ["git", "log", f"--author={author_name}", "-n", "1", "--pretty=format:%s"]
-        msg = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode().strip()
-        return msg if msg else "No recent activity."
-    except:
-        return "Unknown Commit"
+    _, msg, _ = get_last_commit_info(author_name)
+    return msg
 
-def get_last_commit_files(author_name):
-    """Fetches files changed in the last commit by a specific author."""
+def get_last_commit_info(author_name):
+    """Fetches the last commit hash, message, and files for a specific author."""
     try:
         root = get_git_root()
-        # 1. Get the hash of the last commit by this author
-        hash_cmd = ["git", "log", f"--author={author_name}", "-n", "1", "--pretty=format:%H"]
-        commit_hash = subprocess.check_output(hash_cmd, stderr=subprocess.DEVNULL).decode().strip()
+        # 1. Get the hash and message of the last commit by this author
+        # Use -i for case-insensitive search and --all to search all branches
+        cmd = ["git", "log", "-i", "--all", f"--author={author_name}", "-n", "1", "--pretty=format:%H%n%s"]
+        output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode().strip().split("\n")
         
-        if not commit_hash:
-            return []
+        if not output or len(output) < 2 or not output[0]:
+            return None, "No recent activity.", []
+            
+        commit_hash = output[0]
+        commit_msg = output[1]
             
         # 2. Get files in that commit
         files_cmd = ["git", "show", "--name-only", "--pretty=format:", commit_hash]
         files = subprocess.check_output(files_cmd, stderr=subprocess.DEVNULL).decode().strip().splitlines()
         
-        # Convert to absolute paths so os.path.exists works
         abs_files = []
         for f in files:
             f = f.strip()
             if not f: continue
             abs_files.append(os.path.join(root, f))
             
-        return abs_files
+        return commit_hash, commit_msg, abs_files
     except:
-        return []
+        return None, "Unknown Commit", []
+
+def get_commit_diff(commit_hash):
+    """
+    Fetches the actual code changes for a specific commit.
+    """
+    try:
+        # Get the diff of the changes in this commit
+        # -U0 = zero context lines (we just want the changes)
+        diff = subprocess.check_output(
+            ["git", "show", commit_hash, "-U0", "--pretty=format:"], 
+            stderr=subprocess.STDOUT
+        ).decode('utf-8', errors='ignore').strip()
+        
+        # If the diff is too large (safety), truncate it
+        if len(diff) > 5000:
+            return diff[:5000] + "\n...[Truncated]..."
+            
+        return diff if diff else ""
+    except Exception:
+        return ""

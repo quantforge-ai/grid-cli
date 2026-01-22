@@ -117,16 +117,19 @@ def roast_developer(target_name, recent, share):
     identity = config.get_global_identity()
     
     # 2. Analyze their last commit
-    commit_msg = git_police.get_last_commit_message(target_name)
-    touched_files = git_police.get_last_commit_files(target_name)
+    commit_hash, commit_msg, touched_files = git_police.get_last_commit_info(target_name)
     
-    if not commit_msg or commit_msg == "Unknown Commit":
-        utils.print_error(f"No recent commits found for {target_name}.")
+    if not commit_hash or commit_hash == "Unknown Commit":
+        utils.print_error(f"No recent activity found for {target_name}.")
         return
 
-    # 3. Aggregate Score for Touched Files
+    # 3. Get the actual code changes (Diff)
+    commit_diff = git_police.get_commit_diff(commit_hash)
+    
+    # 4. Aggregate Score for Touched Files (Deep Dive)
     commit_scores = []
     supported_exts = list(analyzer.LANG_MAP.keys())
+    
     for f in touched_files:
         if os.path.exists(f):
             ext = os.path.splitext(f)[1].lower()
@@ -139,36 +142,49 @@ def roast_developer(target_name, recent, share):
                 except:
                     continue
     
+    # If file analysis failed (e.g. file deleted), use a rough heuristic from the diff
+    if not commit_scores and commit_diff:
+        # Heuristic: More 'if', 'for', 'while' in a small diff usually means more complexity
+        complexity_keywords = ['if ', 'for ', 'while ', 'case ', 'switch ', 'try {', 'catch ', 'function ']
+        keyword_count = sum(1 for k in complexity_keywords if k in commit_diff.lower())
+        diff_lines = len(commit_diff.splitlines())
+        if diff_lines > 0:
+            heuristic_score = 10 - (keyword_count * 2) - (diff_lines / 10)
+            commit_scores.append(max(1, min(10, int(heuristic_score))))
+
     avg_score = sum(commit_scores) / len(commit_scores) if commit_scores else 0
     
-    # 4. Generate Roast
-    roast = scraper.get_random_roast("roasts")
+    # 5. Generate Roast or Compliment based on score
+    if avg_score >= 7:
+        verdict = scraper.get_random_roast("compliments")
+        verdict_color = "green"
+    else:
+        verdict = scraper.get_random_roast("roasts")
+        verdict_color = "red"
 
-    # 5. Format display elements
+    # 6. Format display elements
     if touched_files:
-        # Clean up paths for display (make them relative to git root if possible)
         root = git_police.get_git_root()
         display_files = [os.path.relpath(f, root) if os.path.isabs(f) else f for f in touched_files]
-        
         files_str = "\n[bold]Files Touched:[/bold]\n" + "\n".join([f" • {f}" for f in display_files[:3]])
         if len(touched_files) > 3:
             files_str += f"\n ... and {len(touched_files)-3} more"
     else:
         files_str = ""
 
-    score_str = f"\n[bold]Commit Integrity:[/bold] [red]{avg_score:.1f}/10[/]" if commit_scores else "\n[bold]Commit Integrity:[/bold] [dim]N/A (No Code Found)[/]"
+    score_str = f"\n[bold]Commit Integrity:[/bold] [{verdict_color}]{avg_score:.1f}/10[/]" if commit_scores else "\n[bold]Commit Integrity:[/bold] [dim]N/A (No Code Found)[/]"
 
-    # 6. Display
+    # 7. Display
     utils.print_panel(
         f"[bold]Last Commit:[/bold] \"{commit_msg}\""
         f"{files_str}"
         f"{score_str}\n\n"
-        f"[bold red]Grid says:[/bold red] {roast}",
+        f"[bold {verdict_color}]Grid says:[/bold {verdict_color}] {verdict}",
         title=f"Roasting {target_name}"
     )
 
-    # 7. Share to Discord (PvP Mode)
+    # 8. Share to Discord (PvP Mode)
     if share:
         utils.spin_action("Broadcasting to Team Channel...", 
-            lambda: broadcaster.broadcast_roast(identity, target_name, commit_msg, roast, is_clean=False))
-        utils.print_success("Roast sent to Discord.")
+            lambda: broadcaster.broadcast_roast(identity, target_name, commit_msg, verdict, is_clean=(avg_score >= 7)))
+        utils.print_success("Verdict sent to Discord.")
