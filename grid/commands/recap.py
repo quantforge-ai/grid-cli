@@ -38,10 +38,10 @@ def run():
         utils.print_warning("(Try 'grid auth <git_name>' if the name doesn't match)")
         return
 
-    print(f"\n[bold underline]Daily Standup for {identity}:[/]\n")
+    utils.console.print(f"\n[bold underline]Daily Standup for {identity}:[/]\n")
     
     for log in logs:
         translated = corporate_translator(log)
-        print(f"• {translated} (Ref: '{log}')")
+        utils.console.print(f"• {translated} (Ref: '{log}')")
         
     utils.print_success("\nCopy-paste this to your manager.")

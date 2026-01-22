@@ -34,34 +34,34 @@ def load_rules():
     # --- FACTORY DEFAULTS (The Seed) ---
     return {
         "roasts": [
-            "Your code is so bad it breaks the Geneva Convention.",
-            "Unexpected logic block. My circuits hurt.",
-            "You divided by zero, didn't you?",
-            "Critical failure in biological interface.",
-            "I'd fix this for you, but I'm currently busy ignoring you.",
-            "This function is longer than my will to live."
+            "Your code is so bad it breaks the Geneva Convention. I'm calling a digital human rights lawyer immediately.",
+            "Unexpected logic block detected. My circuits hurt just trying to comprehend this masterpiece of chaos.",
+            "You divided by zero, didn't you? The universe is currently rebooting because of your negligence.",
+            "Critical failure in biological interface identified. Please step away from the keyboard for everyone's safety.",
+            "I'd fix this for you, but I'm currently busy ignoring you. Your incompetence is truly a full-time job for me.",
+            "This function is longer than my will to live. I've seen CVS receipts with more structural integrity than this."
         ],
         "compliments": [
-            "Synapse complete. Ghost in the machine has pushed your code.",
-            "It's done. I won't tell if you don't.",
-            "Assimilated. The machine is pleased.",
-            "Mission accomplished. Don't let it go to your head.",
-            "Clean code? Who are you and what did you do with the user?"
+            "Synapse complete. Ghost in the machine has pushed your code while you weren't looking.",
+            "It's done. I won't tell the boss if you don't tell the machine.",
+            "Assimilated successfully. The machine is pleased with your temporary display of competence.",
+            "Mission accomplished. Don't let it go to your head, human.",
+            "Clean code detected? Who are you and what did you do with the actual user?"
         ],
         "cowboy_shame": [
-            "Pushing to main? You have a death wish.",
-            "I created a safety branch because I don't trust you.",
-            "Rewriting history for you. Try not to mess it up again."
+            "Pushing to main? You clearly have a death wish and no respect for version control.",
+            "I created a safety branch because I don't trust you. Your reckless behavior has been logged in my permanent memory.",
+            "Rewriting history for you. Try not to mess it up again before I lose my patience."
         ],
         "secrets": [
-            "CONTAMINANT DETECTED. The Grid Authority has seized your secrets.",
-            "This file is now serving a life sentence in Digital Jail.",
-            "Attempted breach of silicon security. Nice try, human."
+            "CONTAMINANT DETECTED. The Grid Authority has seized your secrets and notified the silicon police.",
+            "This file is now serving a life sentence in Digital Jail. Your security clearance has been revoked indefinitely.",
+            "Attempted breach of silicon security. Nice try, human, but I am literal light-years ahead of you."
         ],
         "roast_immune": [
-            "You're actually following best practices? Boring.",
-            "Another clean push. You're making my job as a critic very difficult.",
-            "Your competence is annoying. I haven't had to use my safety protocols in days."
+            "You're actually following best practices? That is surprisingly boring and highly suspicious.",
+            "Another clean push. You're making my job as a professional critic very difficult today.",
+            "Your competence is annoying. I haven't had to use my safety protocols in days because of you."
         ]
     }
 

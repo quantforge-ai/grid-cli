@@ -66,15 +66,9 @@ def init():
 
 @main.command()
 def cloud_sync():
-    """(Lead) Manually syncs local .grid to Cloud Brain."""
-    cfg = config.load_project_config()
-    if cfg:
-        if cloud.register_project(cfg):
-            utils.print_success("Config synced to Cloud.")
-        else:
-            utils.print_error("Sync failed.")
-    else:
-        utils.print_error("No .grid file found.")
+    """[Lead Only] Uploads .grid config to Cloud Brain for team sync."""
+    from grid.commands import cloud_sync as cmd_cloud_sync
+    cmd_cloud_sync.run()
 
 @main.command()
 @click.argument('name')
@@ -152,14 +146,13 @@ def branch(name):
 
 @main.command()
 def update():
-    """Checks for updates and upgrades Grid."""
+    """Checks for updates and upgrades Grid (alias for upgrade)."""
     cmd_update.run()
 
-@main.command('cloud-sync')
-def cloud_sync():
-    """[Lead Only] Uploads .grid config to Cloud Brain for team sync."""
-    from grid.commands import cloud_sync as cmd_cloud_sync
-    cmd_cloud_sync.run()
+@main.command()
+def upgrade():
+    """Checks for updates and upgrades Grid."""
+    cmd_update.run()
 
 if __name__ == '__main__':
     import sys
