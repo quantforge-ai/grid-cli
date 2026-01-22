@@ -1,20 +1,19 @@
 {
-    "routes": [
+    "rewrites": [
         {
-            "src": "/api",
-            "dest": "api/index.py"
-        },
+            "source": "/api/:path*",
+            "destination": "/api/index.py"
+        }
+    ],
+    "headers": [
         {
-            "src": "/api/(.*)",
-            "dest": "api/index.py"
-        },
-        {
-            "src": "/(.*\\.(exe|sh|dmg|AppImage))",
-            "dest": "/public/$1"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/public/index.html"
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=3600"
+                }
+            ]
         }
     ]
 }
