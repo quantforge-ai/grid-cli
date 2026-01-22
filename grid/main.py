@@ -1,4 +1,5 @@
 import click
+import os
 from rich.console import Console
 from grid.core import config, cloud, utils, style, shell
 from grid.commands import dev as cmd_dev
@@ -50,12 +51,21 @@ def push(message):
 @click.argument('target', required=False)
 @click.option('--share', '-s', is_flag=True, help='Broadcast to Team')
 @click.option('-dev', '--developer', help='Roast a colleague')
-def roast(target, share, developer):
+@click.option('--recent', '-r', is_flag=True, help='Roast based on recent commits')
+def roast(target, share, developer, recent):
     """Analyzes code or roasts a colleague."""
+    # 1. Explicit developer roast
     if developer:
-        cmd_roast.roast_developer(developer, recent=True, share=share)
+        cmd_roast.roast_developer(developer, recent=recent, share=share)
+    
+    # 2. Smart target detection: If target doesn't exist as a file, assume it's a developer
     elif target:
-        cmd_roast.roast_file(target)
+        if not os.path.exists(target) or recent:
+            cmd_roast.roast_developer(target, recent=recent, share=share)
+        else:
+            cmd_roast.roast_file(target)
+            
+    # 3. Project-wide roast
     else:
         cmd_roast.roast_project()
 
