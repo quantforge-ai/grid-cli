@@ -158,17 +158,16 @@ if __name__ == '__main__':
     import sys
     import os
     
-    # --- CONTEXT MENU FIX ---
-    # Check if the program was launched with a folder path argument
-    # (This happens when you Right Click -> Open Grid Here)
-    if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
-        target_dir = sys.argv[1]
+    # --- CONTEXT MENU FIX (Windows Registry Path Escaping) ---
+    if len(sys.argv) > 1:
+        # Windows Registry often passes paths like "D:\" as "D:\" which Python sees as D:" 
+        # because the backslash escapes the closing quote. We strip it here.
+        potential_path = sys.argv[1].rstrip('"')
         
-        # 1. Change the working directory to that folder
-        os.chdir(target_dir)
-        
-        # 2. Remove the argument so Click doesn't try to parse it as a command
-        # This makes it behave as if you just double-clicked the exe
-        sys.argv = [sys.argv[0]]
+        if os.path.isdir(potential_path):
+            # Change working directory to the right-clicked folder
+            os.chdir(potential_path)
+            # Clear the argument so Click launches the interactive shell instead of searching for a command
+            sys.argv = [sys.argv[0]]
 
     main()
