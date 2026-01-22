@@ -12,6 +12,12 @@ class ProjectConfig(BaseModel):
     project_id: str
     config: dict
 
+@app.get("/api/health")
+def health_check():
+    """Quick health check for Neural Link status."""
+    return {"status": "online", "msg": "Grid Brain Active"}
+
+
 @app.post("/api/register")
 def register_project(data: ProjectConfig):
     if not KV_URL:

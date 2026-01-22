@@ -58,3 +58,11 @@ def fetch_project_config(project_id):
         return None
     except Exception:
         return None
+
+def check_cloud_health():
+    """Quick health check to see if Cloud Brain is reachable."""
+    try:
+        resp = requests.get(f"{BRAIN_URL}/health", timeout=5)
+        return resp.status_code == 200
+    except:
+        return False

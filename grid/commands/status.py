@@ -10,7 +10,10 @@ def run():
     # Check Cloud Connection (Safe)
     project_cfg = config.load_project_config()
     project_id = project_cfg.get("id") if project_cfg else None
-    neural_link = "[bold green]ONLINE[/]" if project_id and cloud.fetch_project_config(project_id) else "[bold red]SEVERED[/] [dim](Offline Seed Active)[/]"
+    
+    # Neural Link checks if Cloud Brain is reachable (not if config is uploaded)
+    cloud_online = cloud.check_cloud_health()
+    neural_link = "[bold green]ONLINE[/]" if cloud_online else "[bold red]SEVERED[/] [dim](Offline Seed Active)[/]"
     
     
     # 2. Target Assimilation
