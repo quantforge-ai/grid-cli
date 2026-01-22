@@ -15,7 +15,7 @@ def roast_file(target):
     stats = analyzer.analyze_file(target)
     
     # 2. Determine Verdict
-    if stats['score'] < 5:
+    if stats['score'] < 7:
         verdict = scraper.get_random_roast("roasts")
         color = "red"
     else:
@@ -23,9 +23,15 @@ def roast_file(target):
         color = "green"
 
     # 3. Print Report
+    report_text = f"[bold]Complexity Score:[/][{color}] {stats['score']}/10[/]\n"
+    report_text += f"[bold]Verdict:[/][{color}] {verdict}[/]"
+    
+    # 4. Secret Warning
+    if stats['metrics'].get("secrets", 0) > 0:
+        report_text += f"\n\n[bold red blink]⚠️  CONTAMINANT ALERT: {stats['metrics']['secrets']} Hardcoded Secrets Detected![/]"
+    
     utils.print_panel(
-        f"[bold]Complexity Score:[/][{color}] {stats['score']}/10[/]\n"
-        f"[bold]Verdict:[/][{color}] {verdict}[/]",
+        report_text,
         title=f"Roast Report: {target}"
     )
 
@@ -92,7 +98,7 @@ def roast_project():
     avg = total_score / file_count
     utils.print_header(f"AGGREGATE SCORE: {avg:.1f}/10")
     
-    if avg < 5:
+    if avg < 7:
         verdict = scraper.get_random_roast("roasts")
         color = "red"
     else:

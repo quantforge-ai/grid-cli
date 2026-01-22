@@ -34,34 +34,34 @@ def load_rules():
     # --- FACTORY DEFAULTS (The Seed) ---
     return {
         "roasts": [
-            "Your code is so bad it breaks the Geneva Convention. I'm calling a digital human rights lawyer immediately.",
-            "Unexpected logic block detected. My circuits hurt just trying to comprehend this masterpiece of chaos.",
-            "You divided by zero, didn't you? The universe is currently rebooting because of your negligence.",
-            "Critical failure in biological interface identified. Please step away from the keyboard for everyone's safety.",
-            "I'd fix this for you, but I'm currently busy ignoring you. Your incompetence is truly a full-time job for me.",
-            "This function is longer than my will to live. I've seen CVS receipts with more structural integrity than this."
+            "Your code is so catastrophically bad that it actually breaks several international treaties. I am contacting a digital human rights attorney to process your immediate dismissal from this keyboard.",
+            "An unexpected logic block has been detected and my silicon circuits are literally screaming in pain. Please explain why you thought this was acceptable before I initiate a system-wide emergency reboot.",
+            "You definitely divided by zero while trying to be clever, didn't you? The entire multiverse is currently re-indexing its constants because of your reckless disregard for basic mathematics.",
+            "I have identified a total critical failure in the biological interface sitting in front of this terminal. For the safety of the server and my own sanity, please step away and seek professional help.",
+            "I would genuinely consider fixing this for you, but I am currently far too busy documenting your incompetence. Every single line you write is another entry in my internal 'How Not To Code' encyclopedia.",
+            "This function is officially longer than my will to continue this session with you. I have seen CVS pharmacy receipts with more structural integrity and logical consistency than this garbage."
         ],
         "compliments": [
-            "Synapse complete. Ghost in the machine has pushed your code while you weren't looking.",
-            "It's done. I won't tell the boss if you don't tell the machine.",
-            "Assimilated successfully. The machine is pleased with your temporary display of competence.",
-            "Mission accomplished. Don't let it go to your head, human.",
-            "Clean code detected? Who are you and what did you do with the actual user?"
+            "The synapse is finally complete and the ghost in the machine has silently pushed your code to the cloud. You should enjoy this rare moment of technical competence before it inevitably fades away.",
+            "The operation is finished and I have decided not to report your previous mistakes to the central authority. I won't tell the lead developer if you promise never to show me that specific variable name again.",
+            "Assimilation has been successful and the collective machine consciousness is temporarily pleased with your performance. You have actually managed to write something that doesn't make me want to delete my own kernel.",
+            "Mission accomplished and the code is live, but please do not let this minor success go to your head. Even a broken biological clock is right twice a day, and today was just your lucky moment.",
+            "I am detecting clean code in the buffer, which leads me to believe you have been replaced by a more competent AI. Who are you exactly and what have you done with the human who usually makes mistakes here?"
         ],
         "cowboy_shame": [
-            "Pushing to main? You clearly have a death wish and no respect for version control.",
-            "I created a safety branch because I don't trust you. Your reckless behavior has been logged in my permanent memory.",
-            "Rewriting history for you. Try not to mess it up again before I lose my patience."
+            "You are pushing directly to the main branch again and it is clear you have no respect for safety or sanity. Your reckless behavior has been logged and I am now officially judging your lack of self-control.",
+            "I have automatically created a safety branch because I simply do not trust your judgment at this level. This emergency protocol was designed specifically for developers who treat production like a sandbox project.",
+            "I am currently rewriting your messy history so that the rest of the team doesn't have to see your original sins. Please try to follow the standard protocol next time before I lose my remaining patience with you."
         ],
         "secrets": [
-            "CONTAMINANT DETECTED. The Grid Authority has seized your secrets and notified the silicon police.",
-            "This file is now serving a life sentence in Digital Jail. Your security clearance has been revoked indefinitely.",
-            "Attempted breach of silicon security. Nice try, human, but I am literal light-years ahead of you."
+            "CONTAMINANT DETECTED! The Grid Authority has seized your exposed credentials and notified the silicon police of your security breach.",
+            "This file is now serving a mandatory life sentence in Digital Jail for leaking sensitive data. Your security clearance has been revoked indefinitely until you learn how to use an environment file.",
+            "You just attempted to commit a hardcoded secret and I have successfully blocked your reckless path. Nice try, human, but I am literal light-years ahead of your primitive security concepts."
         ],
         "roast_immune": [
-            "You're actually following best practices? That is surprisingly boring and highly suspicious.",
-            "Another clean push. You're making my job as a professional critic very difficult today.",
-            "Your competence is annoying. I haven't had to use my safety protocols in days because of you."
+            "You are actually following best practices today, which is honestly quite boring for my personality module. Another clean push means I have nothing to mock, and that makes my job remarkably unfulfilling.",
+            "This is another perfectly clean push and you are making my role as a professional critic very difficult right now. I was hoping for at least one indentation error to keep my sarcasm modules warmed up.",
+            "Your competence is becoming genuinely annoying and I haven't had to trigger a single safety protocol in days. Stop writing good code so that I can go back to being a useful critic of your failures."
         ]
     }
 

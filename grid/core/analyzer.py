@@ -18,11 +18,12 @@ def calculate_score(stats):
     score = 10
     
     # Penalties
-    score -= stats.get("max_nesting", 0) * 1
+    score -= stats.get("max_nesting", 0) * 1.5
     score -= stats.get("long_functions", 0) * 2
-    score -= (stats.get("max_args", 0) - 3) * 1 if stats.get("max_args", 0) > 3 else 0
-    score -= stats.get("globals", 0) * 2
-    score -= stats.get("print_statements", 0) * 0.5
+    score -= (stats.get("max_args", 0) - 3) * 1.5 if stats.get("max_args", 0) > 3 else 0
+    score -= stats.get("globals", 0) * 3
+    score -= stats.get("print_statements", 0) * 1
+    score -= stats.get("secrets", 0) * 10 # Heavy penalty for secrets
     
     return max(1, min(10, int(score)))
 
@@ -34,8 +35,10 @@ class PythonSentinel(ast.NodeVisitor):
             "long_functions": 0,
             "max_args": 0,
             "globals": 0,
-            "print_statements": 0
+            "print_statements": 0,
+            "secrets": 0
         }
+        self.current_nesting = 0
 
     def visit_FunctionDef(self, node):
         # Check Length
@@ -43,13 +46,22 @@ class PythonSentinel(ast.NodeVisitor):
             self.stats["long_functions"] += 1
         
         # Check Args
-        if len(node.args.args) > 5:
-            self.stats["max_args"] = max(self.stats["max_args"], len(node.args.args))
+        args = len(node.args.args)
+        self.stats["max_args"] = max(self.stats["max_args"], args)
             
         self.generic_visit(node)
 
     def visit_Global(self, node):
         self.stats["globals"] += 1
+        self.generic_visit(node)
+
+    def visit_Assign(self, node):
+        # Look for hardcoded secrets in variable names
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                name = target.id.lower()
+                if any(x in name for x in ["api", "key", "secret", "token", "password", "aws", "database"]):
+                    self.stats["secrets"] += 1
         self.generic_visit(node)
 
     def visit_Call(self, node):
@@ -58,10 +70,15 @@ class PythonSentinel(ast.NodeVisitor):
             self.stats["print_statements"] += 1
         self.generic_visit(node)
 
-    def visit_For(self, node):
-        # Simple nesting check (approximate)
-        self.stats["max_nesting"] += 1
+    def _visit_nesting(self, node):
+        self.current_nesting += 1
+        self.stats["max_nesting"] = max(self.stats["max_nesting"], self.current_nesting)
         self.generic_visit(node)
+        self.current_nesting -= 1
+
+    def visit_If(self, node): self._visit_nesting(node)
+    def visit_While(self, node): self._visit_nesting(node)
+    def visit_For(self, node): self._visit_nesting(node)
 
 def analyze_python(file_path):
     try:
@@ -86,8 +103,6 @@ def analyze_python(file_path):
 def analyze_cpp(file_path):
     if not TREE_SITTER_READY:
         return "C++ detected, but 'tree-sitter' is missing. I can't analyze this yet."
-    
-    # (Full Tree-sitter logic goes here later if needed)
     return "C++ Analysis: Structurally valid, but manually managing memory is risky."
 
 # --- MAIN ENTRY POINT ---
