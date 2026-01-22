@@ -12,10 +12,6 @@ class ProjectConfig(BaseModel):
     project_id: str
     config: dict
 
-@app.get("/")
-def home():
-    return {"status": "Grid Brain Online", "mode": "Vercel KV (Upstash)"}
-
 @app.post("/api/register")
 def register_project(data: ProjectConfig):
     if not KV_URL:
