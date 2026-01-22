@@ -38,16 +38,6 @@ def scan_for_secrets(custom_patterns=None):
     except:
         return []
 
-def get_last_commit_message(author_name):
-    """Fetches the last commit message for a specific author."""
-    try:
-        # Tries to find last commit by author
-        cmd = ["git", "log", f"--author={author_name}", "-n", "1", "--pretty=format:%s"]
-        msg = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode().strip()
-        return msg if msg else "No recent activity."
-    except:
-        return "Unknown Commit"
-
     leaking_files = []
 
     for file_path in files:
@@ -72,4 +62,28 @@ def get_last_commit_message(author_name):
 
     return leaking_files
 
-    
+def get_last_commit_message(author_name):
+    """Fetches the last commit message for a specific author."""
+    try:
+        cmd = ["git", "log", f"--author={author_name}", "-n", "1", "--pretty=format:%s"]
+        msg = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode().strip()
+        return msg if msg else "No recent activity."
+    except:
+        return "Unknown Commit"
+
+def get_last_commit_files(author_name):
+    """Fetches files changed in the last commit by a specific author."""
+    try:
+        # 1. Get the hash of the last commit by this author
+        hash_cmd = ["git", "log", f"--author={author_name}", "-n", "1", "--pretty=format:%H"]
+        commit_hash = subprocess.check_output(hash_cmd, stderr=subprocess.DEVNULL).decode().strip()
+        
+        if not commit_hash:
+            return []
+            
+        # 2. Get files in that commit
+        files_cmd = ["git", "show", "--name-only", "--pretty=format:", commit_hash]
+        files = subprocess.check_output(files_cmd, stderr=subprocess.DEVNULL).decode().strip().splitlines()
+        return [f.strip() for f in files if f.strip()]
+    except:
+        return []

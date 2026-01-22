@@ -116,25 +116,47 @@ def roast_developer(target_name, recent, share):
     
     # 2. Analyze their last commit
     commit_msg = git_police.get_last_commit_message(target_name)
+    touched_files = git_police.get_last_commit_files(target_name)
+    
     if not commit_msg or commit_msg == "Unknown Commit":
         utils.print_error(f"No recent commits found for {target_name}.")
         return
 
-    # 3. Generate Roast
-    # If roasting yourself, be nicer (maybe). If roasting others, go hard.
-    if target_name.lower() == identity.lower():
-        roast = scraper.get_random_roast("roasts")
-    else:
-        roast = scraper.get_random_roast("roasts")
+    # 3. Aggregate Score for Touched Files
+    commit_scores = []
+    for f in touched_files:
+        if os.path.exists(f) and f.endswith(".py"):
+            try:
+                stats = analyzer.analyze_file(f)
+                commit_scores.append(stats['score'])
+            except:
+                continue
+    
+    avg_score = sum(commit_scores) / len(commit_scores) if commit_scores else 0
+    
+    # 4. Generate Roast
+    roast = scraper.get_random_roast("roasts")
 
-    # 4. Display
+    # 5. Format display elements
+    if touched_files:
+        files_str = "\n[bold]Files Touched:[/bold]\n" + "\n".join([f" • {f}" for f in touched_files[:3]])
+        if len(touched_files) > 3:
+            files_str += f"\n ... and {len(touched_files)-3} more"
+    else:
+        files_str = ""
+
+    score_str = f"\n[bold]Commit Integrity:[/bold] [red]{avg_score:.1f}/10[/]" if commit_scores else "\n[bold]Commit Integrity:[/bold] [dim]N/A (No Code Found)[/]"
+
+    # 6. Display
     utils.print_panel(
-        f"[bold]Last Commit:[/bold] \"{commit_msg}\"\n\n"
+        f"[bold]Last Commit:[/bold] \"{commit_msg}\""
+        f"{files_str}"
+        f"{score_str}\n\n"
         f"[bold red]Grid says:[/bold red] {roast}",
         title=f"Roasting {target_name}"
     )
 
-    # 5. Share to Discord (PvP Mode)
+    # 7. Share to Discord (PvP Mode)
     if share:
         utils.spin_action("Broadcasting to Team Channel...", 
             lambda: broadcaster.broadcast_roast(identity, target_name, commit_msg, roast, is_clean=False))
